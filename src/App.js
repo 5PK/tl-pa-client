@@ -61,7 +61,7 @@ export default class App extends React.Component {
 
   userHasNotAuthenticated = () => {
 
-    console.log('user NOT userHasNotAuthenticated shit')
+    console.log('user NOT userHasNotAuthenticated')
 
     this.setState({ isAuthenticated: false, jwt: null })
   }
@@ -76,6 +76,7 @@ export default class App extends React.Component {
 
     this.state.renderCounter++
     console.log("App.js |" + this.state.renderCounter )
+    console.log(process.env.NODE_ENV)
 
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
