@@ -1,0 +1,21 @@
+
+.jss363 {
+  display: flex;
+  min-height: 100vh;
+}
+@media (min-width:600px) {
+  .jss364 {
+    width: 256px;
+    flex-shrink: 0;
+  }
+}
+.jss365 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.jss366 {
+  flex: 1;
+  padding: 48px 36px 0;
+  background: #eaeff1;
+}
