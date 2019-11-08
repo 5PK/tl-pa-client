@@ -1,6 +1,8 @@
 import { API_ROOT } from "./api-config";
 
 async function login(values) {
+
+  console.log(API_ROOT);
   return fetch(`${API_ROOT}/Login`, {
     method: "POST",
     headers: {
