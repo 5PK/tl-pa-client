@@ -3,6 +3,8 @@ let backendHost;
 
 const hostname = window && window.location && window.location.hostname;
 
+console.log(hostname)
+
 if(hostname === 'pattech.com') {
   backendHost = 'https://api.pattech.com';
 } else if(hostname === 'https://tl-patentapp.herokuapp.com') {
