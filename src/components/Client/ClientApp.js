@@ -1,5 +1,6 @@
 // App Imports
 import React, { useState, useEffect } from "react";
+import { getClients, addClient } from "../../api"
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -32,6 +33,7 @@ import { Ring } from "react-awesome-spinners";
 
 // React Router
 import { Link as RouterLink } from "react-router-dom";
+
 
 const headCells = [
   {
@@ -248,19 +250,7 @@ const ClientApp = appState => {
   const handleAddClient = async event => {
     event.preventDefault();
     console.log(appState);
-    const postResponse = await fetch("http://localhost:6969/client", {
-      method: "POST",
-      headers: {
-        jwt: appState.jwt,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: client.name,
-        aso: client.aso,
-        primaryContact: client.primaryContact
-      })
-    });
+    const postResponse = await addClient(appState.jwt, client)
     const response = await postResponse.json();
     console.log(response);
     closeModal();
@@ -278,21 +268,10 @@ const ClientApp = appState => {
 
   const fetchClientList = async () => {
     console.log(appState);
-    const resData = await fetch("http://localhost:6969/client", {
-      method: "GET",
-      headers: {
-        jwt: appState.jwt,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      }
-    });
+    const resData = await getClients(appState.jwt)
     const clientList = await resData.json();
     console.log(clientList)
-
-
     setClient({ ...client, list: clientList });
-
-
     setLoading(false);
   };
 

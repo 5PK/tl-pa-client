@@ -1,6 +1,7 @@
 // App Imports
 import React, { useEffect } from "react";
-
+import { getClient } from "../../../api"
+ 
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
 
@@ -138,16 +139,7 @@ function ClientDetail(appState) {
 
   const fetchClient = async () => {
     console.log(cid);
-
-    const resData = await fetch("http://localhost:6969/client/" + cid, {
-      method: "GET",
-      headers: {
-        jwt: appState.jwt,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      }
-    });
-
+    const resData = await getClient(appState.jwt, cid);
     const client = await resData.json();
     console.log(client);
     setClient({ ...client, data: client.body, loading: false });

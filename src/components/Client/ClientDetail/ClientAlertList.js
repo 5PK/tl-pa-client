@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect } from "react";
-import axios from "axios";
+import { getAlerts } from "../../../api";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -109,14 +109,7 @@ function ClientAlertList(appState) {
   const fetchClientAlerts = async () => {
     console.log("clientId: " + clientId);
 
-    const resData = await fetch("http://localhost:6969/alert/?clientId=" + clientId, {
-      method: "GET",
-      headers: {
-        jwt: appState.jwt,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      }
-    });
+    const resData = await getAlerts(appState.jwt, clientId)
 
     const clientAlertList = await resData.json();
     console.log(clientAlertList)

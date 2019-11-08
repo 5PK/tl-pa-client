@@ -13,7 +13,6 @@ import Button from "@material-ui/core/Button";
 import AddIcon from "@material-ui/icons/Add";
 
 // Custom Component Import
-import ClientList from "../Client/ClientList";
 
 const useStyles = makeStyles(theme => ({
   modal: {
@@ -131,7 +130,7 @@ const AccountApp = ({ token }) => {
       >
         <AddIcon />
       </Fab>
-      <ClientList />
+
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

@@ -76,7 +76,7 @@ export default class App extends React.Component {
 
     this.state.renderCounter++
     console.log("App.js |" + this.state.renderCounter )
-    console.log(process.env.NODE_ENV)
+    console.log(process.env.API_URL)
 
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
