@@ -99,14 +99,10 @@ export default class App extends React.Component {
     if(!this.state.isAuthenticated){
       return(
       <Router>
-   
-      
             <Route path="/" render={()=><Redirect to="/Landing" appState={childProps} />}/>
             <Route path="/Landing" render={()=><Landing  appState={childProps}/>}/>
             <Route path="/Login" render={()=><Login  appState={childProps}/>}/>
             <Route path="/Register" render={()=><Register  appState={childProps}/>}/>
-     
-     
       </Router>
       )
     }else{
