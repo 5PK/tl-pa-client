@@ -1,7 +1,6 @@
 import { API_ROOT } from "./api-config";
 
 async function login(values) {
-
   console.log(API_ROOT);
   return fetch(`${API_ROOT}/Login`, {
     method: "POST",
@@ -17,7 +16,9 @@ async function login(values) {
 }
 
 async function getClient(jwt, cid) {
-  fetch(`${API_ROOT}/client/` + cid, {
+  console.log(`${API_ROOT}/client/` + cid);
+
+  return fetch(`${API_ROOT}/client/` + cid, {
     method: "GET",
     headers: {
       jwt: jwt,
@@ -55,7 +56,7 @@ async function addClient(jwt, client) {
 }
 
 async function getAlerts(jwt, cid) {
-  return fetch(`${API_ROOT}/?clientId=` + cid, {
+  return fetch(`${API_ROOT}/alert/?clientId=` + cid, {
     method: "GET",
     headers: {
       jwt: jwt,
