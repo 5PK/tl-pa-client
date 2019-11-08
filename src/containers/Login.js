@@ -68,6 +68,7 @@ const Login = appState => {
     event.preventDefault();
 
     const loginResponse = await login(user);
+    console.log(loginResponse)
     const response = await loginResponse.json();
 
     console.log(response);
