@@ -1,6 +1,6 @@
 // App Imports
 import React, { useState, useEffect } from "react";
-
+import { getContacts } from "../../api";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -20,9 +20,16 @@ import Fade from "@material-ui/core/Fade"
 import TextField from "@material-ui/core/TextField"
 import Paper from "@material-ui/core/Paper"
 import Typography from "@material-ui/core/Typography"
-
-
+import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+
+// Custom Component Import
+import ContactList from "./c_ContactList"
+
+
+// React Awesome Spinner
+import { Ring } from "react-awesome-spinners";
 
 
 const useStyles = makeStyles(theme => ({
@@ -84,81 +91,73 @@ function ClientContactList(appState) {
 
   appState = appState.appState;
 
-  const [v, setValues] = React.useState({
-    order: "asc",
-    orderBy: "Contacts",
-    page: 0,
-    rowsPerPage: 5,
-    clientContacts: [],
+  const [snacks, setSnack] = React.useState({
+    open: false,
+    type: 0,
+    name: ""
+  });
+  const [modal, setModal] = React.useState({
     open: false
+  });
+  const [contact, setContact] = React.useState({
+    list: [],
+    loading: true,
+    firstName: "",
+    lastName: "",
+    email: ""
   });
 
   useEffect(() => {
-    console.log(v);
-    //fetchClientContacts();
+    console.log(appState);
+    fetchClientContacts();
   }, []);
+
+  const closeSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnack({ ...snacks, open: false });
+  };
+
+  const sendSnack = response => {
+    setSnack({ ...snacks, open: true, name: response.body });
+  };
 
 
   const fetchClientContacts = async () => {
+    console.log("clientId: " + clientId);
 
-    console.log("clientId: " + clientId)
 
-    await fetch("http://localhost:6969/contact/?clientId=" + clientId, {
-        method: "GET",
-        headers: {
-          jwt: appState.jwt,
-          Accept: "application/json",
-          "Content-Type": "application/json"
-        }
-      })
-      .then(response => response.json())
-      .then(responseJson => {
-        setValues({ ...v, clientContacts: responseJson });
-      })
-      .catch(error => {
-        alert(error);
-      });
+    try {
+      const resData = await getContacts(appState.jwt, clientId);
+      console.log(resData);
+      const clientContactList = await resData.json();
+      console.log(clientContactList);
+      setContact({ ...contact, list: clientContactList.body, loading: false });
+    } catch (error) {
+      sendSnack({body: error.name + " getting Contacts"});
+    }
+
+    
   };
 
-
-
-  const handleAddAlert = async event => {
+  const handleAddContact = async event => {
     event.preventDefault();
-
-    fetch("http://localhost:6969/alert", {
-      method: "POST",
-      headers: {
-        jwt: appState.jwt,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: v.clientName,
-        query: v.clientAso,
-        clientId: clientId
-      })
-    })
-      .then(response => response.json())
-      .then(responseJson => {
-        alert(responseJson);
-      })
-      .catch(error => {
-        alert(error);
-      });
+    const resData = await handleAddContact(appState.jwt, contact, clientId)
+    const contact = await resData.json();
+    setContact({ ...contact, loading: true });
   };
 
-  const handleOpen = () => {
-    //setOpen(true)
-    setValues({ ...v, open: true })
+  const openModal = () => {
+    setModal({ ...modal, open: true })
   }
 
-  const handleClose = () => {
-    //setOpen(false)
-    setValues({ ...v, open: false })
+  const closeModal = () => {
+    setModal({ ...modal, open: false })
   }
 
   const handleChange = property => event => {
-    setValues({ ...v, [property]: event.target.value })
+    setContact({ ...contact, [property]: event.target.value })
   }
 
   return (
@@ -183,44 +182,57 @@ function ClientContactList(appState) {
             color="secondary"
             aria-label="add"
             className={classes.margin}
-            onClick={handleOpen}
+            onClick={openModal}
           >
             <AddIcon />
           </Fab>
         </Grid>
       </Grid>
-      
+      {contact.loading ? (
+            <Ring style={{ margin: "auto" }} />
+          ) : (
+        <ContactList contacts={contact.list}/>
+      )}
    
    
       <Modal
           aria-labelledby="transition-modal-title"
           aria-describedby="transition-modal-description"
           className={classes.modal}
-          open={v.open}
-          onClose={handleClose}
+          open={modal.open}
+          onClose={closeModal}
           closeAfterTransition
           BackdropComponent={Backdrop}
           BackdropProps={{
             timeout: 500
           }}
         >
-          <Fade in={v.open}>
+          <Fade in={modal.open}>
             <div className={classes.paper}>
               <h2 id="transition-modal-title">Add Alert</h2>
               <form >
                 <TextField
-                  label="Alert Name"
+                  label="First Name"
                   className={classes.textField}
                   margin="normal"
-                  onSubmit={handleAddAlert}
-                  onChange={handleChange("alertName")}
+                  onSubmit={handleAddContact}
+                  onChange={handleChange("firstName")}
                 />
+                <br/>
                 <TextField
-                  label="Query"
+                  label="Last Name"
                   className={classes.textField}
                   margin="normal"
-                  onChange={handleChange("clientQuery")}
+                  onChange={handleChange("lastName")}
                 />
+                <br/>
+                <TextField
+                  label="Email"
+                  className={classes.textField}
+                  margin="normal"
+                  onChange={handleChange("email")}
+                />
+                <br/>
                 <Button className={classes.button} type="submit">
                   Submit
                 </Button>
@@ -228,6 +240,31 @@ function ClientContactList(appState) {
             </div>
           </Fade>
         </Modal>
+
+        <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left"
+        }}
+        open={snacks.open}
+        autoHideDuration={6000}
+        onClose={closeSnack}
+        ContentProps={{
+          "aria-describedby": "message-id"
+        }}
+        message={<span id="message-id">{snacks.name}</span>}
+        action={[
+          <IconButton
+            key="close"
+            aria-label="close"
+            color="inherit"
+            className={classes.close}
+            onClick={closeSnack}
+          >
+            <CloseIcon />
+          </IconButton>
+        ]}
+      />
     </div>
   );
 }

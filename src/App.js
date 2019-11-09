@@ -1,8 +1,6 @@
 // App Imports
 import React from 'react'
 import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom"
-
-import { matchPath } from "react-router";
 import SideNav from "./components/SideNav"
 
 
@@ -14,10 +12,10 @@ import Landing from "./containers/Landing";
 import NotFound from "./containers/NotFound";
 
 
-import ClientApp from "./components/Client/ClientApp";
+import ClientApp from "./components/Client/c_App";
 import AccountApp from "./components/Account/AccountApp";
 import AlertApp from "./components/Alert/AlertApp";
-import ClientDetail from "./components/Client/ClientDetail/ClientDetail.js"
+import ClientDetail from "./components/Client/c_Detail"
 
 
 

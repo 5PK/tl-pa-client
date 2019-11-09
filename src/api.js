@@ -66,4 +66,33 @@ async function getAlerts(jwt, cid) {
   });
 }
 
-export { getClients, addClient, getClient, getAlerts, login };
+async function getContacts(jwt, cid){
+  return fetch(`${API_ROOT}/contact/?clientId=` + cid, {
+    method: "GET",
+    headers: {
+      jwt: jwt,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
+  });
+}
+
+async function addContact(jwt, contact, clientId) {
+  return fetch(`${API_ROOT}/contact`, {
+    method: "POST",
+    headers: {
+      jwt: jwt,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      firstName: contact.firstName,
+      lastName: contact.lastName,
+      email: contact.email,
+      bx3ClientId: clientId
+    })
+  });
+}
+
+
+export { getClients, addClient, getClient, getAlerts, login, getContacts };

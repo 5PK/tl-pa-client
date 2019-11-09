@@ -1,11 +1,11 @@
 // App Imports
 import React, { useEffect } from "react";
-import { getClient } from "../../../api"
- 
+import { getClient } from "../../api";
+
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
 
-// You should probably reseach this 
+// You should probably reseach this
 //import { matchPath } from "react-router";
 
 // Material UI Components
@@ -20,13 +20,13 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import Button from "@material-ui/core/Button";
-
-// React Awesome Spinner
-import { Ring } from "react-awesome-spinners";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import EditIcon from '@material-ui/icons/Edit';
+import IconButton from '@material-ui/core/IconButton';
 
 // Custom Components
-import ClientAlertList from "./ClientAlertList";
-import ClientContactList from "./ClientContactList.js";
+import AlertApp from "./c_AlertApp";
+import ContactApp from "./c_ContactApp";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -74,6 +74,7 @@ const useStyles = makeStyles(theme => ({
     backgroundColor: theme.palette.background.paper,
     border: "1px solid #000",
     boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
     outline: 0
   },
   contactCard: {
@@ -192,12 +193,15 @@ function ClientDetail(appState) {
       <div className={classes.leftCol}>
         <Paper className={classes.clientCard}>
           {client.loading ? (
-            <Ring style={{ margin: "auto" }} />
+            <CircularProgress style={{ margin: "auto" }} />
           ) : (
-            <div container spacing={3} className={classes.detailHeader}>
+            <div spacing={3} className={classes.detailHeader}>
               <Typography variant="h4" component="h2">
                 {client.data.name}
               </Typography>
+              <IconButton size="medium" aria-label="delete" className={classes.margin} onClick={openModal}>
+                <EditIcon fontSize="medium" />
+              </IconButton>
               <br />
               <Typography variant="caption" gutterBottom>
                 ASO: {client.data.aso}
@@ -232,6 +236,7 @@ function ClientDetail(appState) {
                     value={client.putName}
                     onChange={handleInputChange("putName")}
                   />
+                  <br />
                   <TextField
                     label="ASO"
                     className={classes.textField}
@@ -240,6 +245,7 @@ function ClientDetail(appState) {
                     onChange={handleInputChange("putAso")}
                     placeholder={client.data.name}
                   />
+                  <br />
                   <TextField
                     label="Primary Contact"
                     className={classes.textField}
@@ -247,6 +253,7 @@ function ClientDetail(appState) {
                     value={client.putPrimaryContact}
                     onChange={handleInputChange("putPrimaryContact")}
                   />
+                  <br />
                   <Button className={classes.button} type="submit">
                     Submit
                   </Button>
@@ -257,10 +264,10 @@ function ClientDetail(appState) {
         </Paper>
 
         <Paper className={classes.contactCard}>
-          <ClientContactList appState={appState} />
+          <ContactApp appState={appState} />
         </Paper>
       </div>
-      
+
       <div className={classes.rightCol}>
         <Paper className={classes.alertCard}>
           <AppBar position="static">
@@ -270,7 +277,7 @@ function ClientDetail(appState) {
             </Tabs>
           </AppBar>
           <TabPanel value={tab.value} index={0}>
-            <ClientAlertList appState={appState} />
+            <AlertApp appState={appState} />
           </TabPanel>
           <TabPanel value={tab.value} index={1}>
             Item Two

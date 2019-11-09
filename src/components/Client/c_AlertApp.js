@@ -1,17 +1,11 @@
 // App Imports
 import React, { useEffect } from "react";
-import { getAlerts } from "../../../api";
+import { getAlerts } from "../../api";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import Divider from "@material-ui/core/Divider";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import Grid from "@material-ui/core/Grid";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
 import AddIcon from "@material-ui/icons/Add";
 import Fab from "@material-ui/core/Fab";
 import Modal from "@material-ui/core/Modal";
@@ -20,15 +14,18 @@ import Fade from "@material-ui/core/Fade";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 
-import IconButton from "@material-ui/core/IconButton";
-
 // Custom Component Import
-import AlertList from "../ClientDetail/AlertList"
+import AlertList from "./c_AlertList"
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
 
 const useStyles = makeStyles(theme => ({
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
   card: {
     minWidth: 275
   },
@@ -84,7 +81,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function ClientAlertList(appState) {
+function AlertApp(appState) {
   const classes = useStyles();
   const clientId = window.location.pathname.replace("/Client/", "");
   appState = appState.appState;
@@ -107,10 +104,9 @@ function ClientAlertList(appState) {
   },[] );
 
   const fetchClientAlerts = async () => {
+    
     console.log("clientId: " + clientId);
-
     const resData = await getAlerts(appState.jwt, clientId)
-
     const clientAlertList = await resData.json();
     console.log(clientAlertList)
     setAlert({ ...alert, list: clientAlertList.body, loading: false });
@@ -190,6 +186,7 @@ function ClientAlertList(appState) {
       )}
 
       <Modal
+        className={classes.modal}
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         className={classes.modal}
@@ -229,4 +226,4 @@ function ClientAlertList(appState) {
   );
 }
 
-export default ClientAlertList;
+export default AlertApp;
