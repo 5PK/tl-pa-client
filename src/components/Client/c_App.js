@@ -20,6 +20,8 @@ import Grid from "@material-ui/core/Grid";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
+import CheckIcon from "@material-ui/icons/Check";
+import ClearIcon from '@material-ui/icons/Clear';
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Divider from "@material-ui/core/Divider";
@@ -192,7 +194,7 @@ function ListItemLink(props) {
           {clientList.aso}
         </Grid>
         <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
-          {clientList.isVerified}
+          {clientList.isVerified ? (<CheckIcon/>) : (<ClearIcon/>)}
         </Grid>
       </ListItem>
     </li>
@@ -244,7 +246,7 @@ const ClientApp = appState => {
   };
 
   const sendSnack = response => {
-    setSnack({ ...snacks, open: true, name: response.body });
+    setSnack({ ...snacks, open: true, name: response.msg });
   };
 
   const handleAddClient = async event => {
@@ -268,11 +270,19 @@ const ClientApp = appState => {
 
   const fetchClientList = async () => {
     console.log(appState);
-    const resData = await getClients(appState.jwt)
-    const clientList = await resData.json();
-    console.log(clientList)
-    setClient({ ...client, list: clientList });
-    setLoading(false);
+    try {
+      const res = await getClients(appState.jwt)
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson)
+      setClient({ ...client, list: resJson.data });
+      setLoading(false);
+    } catch (error) {
+      sendSnack({body:error.name + ": Failed getting Clients!"})
+    }
+    
+
+    
   };
 
   return (

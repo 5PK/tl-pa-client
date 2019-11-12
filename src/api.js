@@ -55,6 +55,22 @@ async function addClient(jwt, client) {
   });
 }
 
+async function updateClient(jwt, client, cid) {
+  return fetch(`${API_ROOT}/client/` + cid, {
+    method: "PUT",
+    headers: {
+      jwt: jwt,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      name: client.name,
+      aso: client.aso,
+      primaryContact: client.primaryContact
+    })
+  });
+}
+
 async function getAlerts(jwt, cid) {
   return fetch(`${API_ROOT}/alert/?clientId=` + cid, {
     method: "GET",
@@ -66,7 +82,7 @@ async function getAlerts(jwt, cid) {
   });
 }
 
-async function getContacts(jwt, cid){
+async function getContacts(jwt, cid) {
   return fetch(`${API_ROOT}/contact/?clientId=` + cid, {
     method: "GET",
     headers: {
@@ -74,6 +90,25 @@ async function getContacts(jwt, cid){
       Accept: "application/json",
       "Content-Type": "application/json"
     }
+  });
+}
+
+async function updateContact(jwt, contact) {
+
+  console.log(contact)
+
+  return fetch(`${API_ROOT}/contact/` + contact.id, {
+    method: "PUT",
+    headers: {
+      jwt: jwt,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      firstName: contact.firstName,
+      lastName: contact.lastName,
+      email: contact.email
+    })
   });
 }
 
@@ -94,5 +129,4 @@ async function addContact(jwt, contact, clientId) {
   });
 }
 
-
-export { getClients, addClient, getClient, getAlerts, login, getContacts };
+export { getClients, addClient, getClient, getAlerts, login, getContacts, updateClient, updateContact, addContact };

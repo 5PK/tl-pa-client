@@ -2,14 +2,7 @@ import React from 'react';
 import { Redirect} from "react-router-dom";
 import SideNav2 from '../components/SideNav2';
 
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom'
-
-import Client from "../components/Client/ClientApp";
-import ClientDetail from "../components/Client/ClientDetail";
-import Account from "../components/Account/AccountApp";
-import Alert from "../components/Alert/AlertApp";
-
-import AppliedRoute from "../components/AppliedRoute";
+import {BrowserRouter as Router} from 'react-router-dom'
 
 import Routes from "../Routes"
 

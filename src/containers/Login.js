@@ -78,7 +78,7 @@ const Login = appState => {
         "Login.js | 1 IsAuthenticated? -> " + appState.isAuthenticated
       );
 
-      appState.userHasAuthenticated(true, response.body.token);
+      appState.userHasAuthenticated(true, response.data.token);
 
       console.log(
         "Login.js | 2 IsAuthenticated? -> " + appState.isAuthenticated

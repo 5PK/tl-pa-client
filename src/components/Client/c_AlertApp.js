@@ -13,9 +13,12 @@ import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
+import Snackbar from "@material-ui/core/Snackbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 
 // Custom Component Import
-import AlertList from "./c_AlertList"
+import AlertList from "./c_AlertList";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
@@ -76,8 +79,8 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "center"
   },
   lItem: {
-    padding:0,
-    margin:0
+    padding: 0,
+    margin: 0
   }
 }));
 
@@ -90,7 +93,7 @@ function AlertApp(appState) {
     order: "asc",
     orderBy: "Open Alerts",
     page: 0,
-    rowsPerPage: 5,
+    rowsPerPage: 5
   });
 
   const [alert, setAlert] = React.useState({
@@ -98,18 +101,41 @@ function AlertApp(appState) {
     loading: true
   });
 
+
+  const [snacks, setSnack] = React.useState({
+    open: false,
+    type: 0,
+    name: ""
+  });
+
   useEffect(() => {
     console.log(v);
     fetchClientAlerts();
-  },[] );
+  }, []);
+
+  const closeSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnack({ ...snacks, open: false });
+  };
+
+  const sendSnack = response => {
+    setSnack({ ...snacks, open: true, name: response.body });
+  };
 
   const fetchClientAlerts = async () => {
-    
     console.log("clientId: " + clientId);
-    const resData = await getAlerts(appState.jwt, clientId)
-    const clientAlertList = await resData.json();
-    console.log(clientAlertList)
-    setAlert({ ...alert, list: clientAlertList.body, loading: false });
+
+    try {
+      const res = await getAlerts(appState.jwt, clientId);
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson);
+      setAlert({ ...alert, list: resJson.data, loading: false });
+    } catch (error) {
+      sendSnack({ body: error.name + " getting Alerts" });
+    }
 
   };
 
@@ -180,9 +206,9 @@ function AlertApp(appState) {
         </Grid>
       </Grid>
       {alert.loading ? (
-            <Ring style={{ margin: "auto" }} />
-          ) : (
-        <AlertList alerts={alert.list}/>
+        <Ring style={{ margin: "auto" }} />
+      ) : (
+        <AlertList alerts={alert.list} />
       )}
 
       <Modal
@@ -222,6 +248,31 @@ function AlertApp(appState) {
           </div>
         </Fade>
       </Modal>
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left"
+        }}
+        open={snacks.open}
+        autoHideDuration={6000}
+        onClose={closeSnack}
+        ContentProps={{
+          "aria-describedby": "message-id"
+        }}
+        message={<span id="message-id">{snacks.name}</span>}
+        action={[
+          <IconButton
+            key="close"
+            aria-label="close"
+            color="inherit"
+            className={classes.close}
+            onClick={closeSnack}
+          >
+            <CloseIcon />
+          </IconButton>
+        ]}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 // App Imports
 import React, { useState, useEffect } from "react";
-import { getContacts } from "../../api";
+import { getContacts, addContact } from "../../api";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -12,25 +12,24 @@ import ListItemText from "@material-ui/core/ListItemText";
 import Grid from "@material-ui/core/Grid";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-import AddIcon from "@material-ui/icons/Add"
-import Fab from "@material-ui/core/Fab"
-import Modal from "@material-ui/core/Modal"
-import Backdrop from "@material-ui/core/Backdrop"
-import Fade from "@material-ui/core/Fade"
-import TextField from "@material-ui/core/TextField"
-import Paper from "@material-ui/core/Paper"
-import Typography from "@material-ui/core/Typography"
+import AddIcon from "@material-ui/icons/Add";
+import Fab from "@material-ui/core/Fab";
+import Modal from "@material-ui/core/Modal";
+import Backdrop from "@material-ui/core/Backdrop";
+import Fade from "@material-ui/core/Fade";
+import TextField from "@material-ui/core/TextField";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 
-// Custom Component Import
-import ContactList from "./c_ContactList"
 
+// Custom Component Import
+import ContactList from "./c_ContactList";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
-
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -81,13 +80,13 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
-  },
+  }
 }));
 
 function ClientContactList(appState) {
   const classes = useStyles();
 
-  const clientId = window.location.pathname.replace("/Client/", "")
+  const clientId = window.location.pathname.replace("/Client/", "");
 
   appState = appState.appState;
 
@@ -123,45 +122,50 @@ function ClientContactList(appState) {
     setSnack({ ...snacks, open: true, name: response.body });
   };
 
-
   const fetchClientContacts = async () => {
     console.log("clientId: " + clientId);
 
-
     try {
-      const resData = await getContacts(appState.jwt, clientId);
-      console.log(resData);
-      const clientContactList = await resData.json();
-      console.log(clientContactList);
-      setContact({ ...contact, list: clientContactList.body, loading: false });
+      const res = await getContacts(appState.jwt, clientId);
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson);
+      setContact({ ...contact, list: resJson.data, loading: false });
     } catch (error) {
-      sendSnack({body: error.name + " getting Contacts"});
+      sendSnack({ body: error.name + " getting Contacts" });
     }
-
-    
   };
 
   const handleAddContact = async event => {
     event.preventDefault();
-    const resData = await handleAddContact(appState.jwt, contact, clientId)
-    const contact = await resData.json();
-    setContact({ ...contact, loading: true });
+    try {
+
+      console.log(appState)
+      console.log(contact)
+      console.log(clientId)
+
+      const resData = await addContact(appState.jwt, contact, clientId);
+      const contact = await resData.json();
+      setContact({ ...contact, loading: true });
+      sendSnack({ body: "Contact Added!" });
+    } catch (error) {
+      sendSnack({ body: error.name + " getting Contacts" });
+    }
   };
 
   const openModal = () => {
-    setModal({ ...modal, open: true })
-  }
+    setModal({ ...modal, open: true });
+  };
 
   const closeModal = () => {
-    setModal({ ...modal, open: false })
-  }
+    setModal({ ...modal, open: false });
+  };
 
   const handleChange = property => event => {
-    setContact({ ...contact, [property]: event.target.value })
-  }
+    setContact({ ...contact, [property]: event.target.value });
+  };
 
   return (
-    
     <div className={classes.root}>
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
@@ -189,59 +193,58 @@ function ClientContactList(appState) {
         </Grid>
       </Grid>
       {contact.loading ? (
-            <Ring style={{ margin: "auto" }} />
-          ) : (
-        <ContactList contacts={contact.list}/>
+        <Ring style={{ margin: "auto" }} />
+      ) : (
+        <ContactList props={{contacts: contact.list, appState:appState}} />
       )}
-   
-   
-      <Modal
-          aria-labelledby="transition-modal-title"
-          aria-describedby="transition-modal-description"
-          className={classes.modal}
-          open={modal.open}
-          onClose={closeModal}
-          closeAfterTransition
-          BackdropComponent={Backdrop}
-          BackdropProps={{
-            timeout: 500
-          }}
-        >
-          <Fade in={modal.open}>
-            <div className={classes.paper}>
-              <h2 id="transition-modal-title">Add Alert</h2>
-              <form >
-                <TextField
-                  label="First Name"
-                  className={classes.textField}
-                  margin="normal"
-                  onSubmit={handleAddContact}
-                  onChange={handleChange("firstName")}
-                />
-                <br/>
-                <TextField
-                  label="Last Name"
-                  className={classes.textField}
-                  margin="normal"
-                  onChange={handleChange("lastName")}
-                />
-                <br/>
-                <TextField
-                  label="Email"
-                  className={classes.textField}
-                  margin="normal"
-                  onChange={handleChange("email")}
-                />
-                <br/>
-                <Button className={classes.button} type="submit">
-                  Submit
-                </Button>
-              </form>
-            </div>
-          </Fade>
-        </Modal>
 
-        <Snackbar
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        className={classes.modal}
+        open={modal.open}
+        onClose={closeModal}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500
+        }}
+      >
+        <Fade in={modal.open}>
+          <div className={classes.paper}>
+            <h2 id="transition-modal-title">Add Alert</h2>
+            <form>
+              <TextField
+                label="First Name"
+                className={classes.textField}
+                margin="normal"
+                onSubmit={handleAddContact}
+                onChange={handleChange("firstName")}
+              />
+              <br />
+              <TextField
+                label="Last Name"
+                className={classes.textField}
+                margin="normal"
+                onChange={handleChange("lastName")}
+              />
+              <br />
+              <TextField
+                label="Email"
+                className={classes.textField}
+                margin="normal"
+                onChange={handleChange("email")}
+              />
+              <br />
+              <Button className={classes.button} type="submit">
+                Submit
+              </Button>
+            </form>
+          </div>
+        </Fade>
+      </Modal>
+
+      <Snackbar
         anchorOrigin={{
           vertical: "bottom",
           horizontal: "left"

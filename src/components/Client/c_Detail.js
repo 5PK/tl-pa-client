@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect } from "react";
-import { getClient } from "../../api";
+import { getClient, updateClient } from "../../api";
 
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
@@ -20,9 +20,11 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import Button from "@material-ui/core/Button";
-import CircularProgress from '@material-ui/core/CircularProgress';
-import EditIcon from '@material-ui/icons/Edit';
-import IconButton from '@material-ui/core/IconButton';
+import CircularProgress from "@material-ui/core/CircularProgress";
+import EditIcon from "@material-ui/icons/Edit";
+import IconButton from "@material-ui/core/IconButton";
+import Snackbar from "@material-ui/core/Snackbar";
+import CloseIcon from "@material-ui/icons/Close";
 
 // Custom Components
 import AlertApp from "./c_AlertApp";
@@ -63,7 +65,12 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1
   },
   detailHeader: {
-    padding: theme.spacing(3, 2)
+    padding: theme.spacing(3, 2),
+    height: "100%"
+  },
+  detailContent: {
+    marginLeft: theme.spacing(3, 2),
+    paddingTop: theme.spacing(3, 2)
   },
   modal: {
     display: "flex",
@@ -102,6 +109,15 @@ const useStyles = makeStyles(theme => ({
   rightCol: {
     flex: "1",
     width: "70%"
+  },
+  clientEdit: {
+    display: "inlineBlock"
+  },
+  clientTitle: {
+    display: "inlineBlock"
+  },
+  clientTitle: {
+    display: "inlineBlock"
   }
 }));
 
@@ -110,6 +126,12 @@ function ClientDetail(appState) {
   const cid = window.location.pathname.replace("/Client/", "");
 
   const classes = useStyles();
+
+  const [snacks, setSnack] = React.useState({
+    open: false,
+    type: 0,
+    name: ""
+  });
 
   const [tab, setTab] = React.useState({
     value: 0
@@ -122,9 +144,9 @@ function ClientDetail(appState) {
   const [client, setClient] = React.useState({
     id: cid,
     data: {},
-    putName: "",
-    putAso: "",
-    putPrimaryContact: "",
+    name: "",
+    aso: "",
+    primaryContact: "",
     loading: true
   });
 
@@ -139,11 +161,22 @@ function ClientDetail(appState) {
   };
 
   const fetchClient = async () => {
-    console.log(cid);
-    const resData = await getClient(appState.jwt, cid);
-    const client = await resData.json();
-    console.log(client);
-    setClient({ ...client, data: client.body, loading: false });
+    try {
+      console.log(cid);
+      const res = await getClient(appState.jwt, cid);
+      const resJson = await res.json();
+      console.log(resJson);
+      setClient({
+        ...client,
+        data: resJson.data,
+        loading: false,
+        name: resJson.data.name,
+        aso: resJson.data.aso,
+        primaryContact: resJson.data.primaryContact
+      });
+    } catch (error) {
+      sendSnack({ body: error.name + " getting Client Details!" });
+    }
   };
 
   const openModal = () => {
@@ -152,6 +185,17 @@ function ClientDetail(appState) {
 
   const closeModal = () => {
     setModal({ ...modal, open: false });
+  };
+
+  const closeSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnack({ ...snacks, open: false });
+  };
+
+  const sendSnack = response => {
+    setSnack({ ...snacks, open: true, name: response.body });
   };
 
   const handleInputChange = property => event => {
@@ -164,28 +208,23 @@ function ClientDetail(appState) {
 
   const handleEditClient = async event => {
     event.preventDefault();
-    /*
-    fetch("http://localhost:6969/client", {
-      method: "PUT",
-      headers: {
-        jwt: appState.jwt,
-        Accept: "application/json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: v.putClientName,
-        aso: v.putClientAso,
-        primaryContact: v.putClientPrimaryContact
-      })
-    })
-      .then(response => response.json())
-      .then(responseJson => {
-        alert(responseJson);
-      })
-      .catch(error => {
-        alert(error);
-      });
-      */
+    try {
+      const res = await updateClient(appState.jwt, client, cid);
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson);
+      closeModal();
+      if (resJson.statusCode === 200) {
+        setClient({ ...alert, data: resJson.data, loading: false });
+        sendSnack({ body: "Client Updated!" });
+      } else {
+        closeModal();
+        sendSnack({ body: `Error Updating Client!: ${resJson.statusCode}` });
+      }
+    } catch (error) {
+      closeModal();
+      sendSnack({ body: `Error Updating Client!: ${error.name}` });
+    }
   };
 
   return (
@@ -195,21 +234,32 @@ function ClientDetail(appState) {
           {client.loading ? (
             <CircularProgress style={{ margin: "auto" }} />
           ) : (
-            <div spacing={3} className={classes.detailHeader}>
-              <Typography variant="h4" component="h2">
+            <div className={classes.detailHeader}>
+              <Typography
+                variant="h4"
+                component="h2"
+                style={{ display: "inline-block" }}
+              >
                 {client.data.name}
               </Typography>
-              <IconButton size="medium" aria-label="delete" className={classes.margin} onClick={openModal}>
+              <IconButton
+                size="medium"
+                aria-label="delete"
+                style={{ display: "inline-block", float: "right" }}
+                onClick={openModal}
+              >
                 <EditIcon fontSize="medium" />
               </IconButton>
               <br />
-              <Typography variant="caption" gutterBottom>
-                ASO: {client.data.aso}
-              </Typography>
-              <br />
-              <Typography variant="caption" gutterBottom>
-                Primary Contact: {client.data.primaryContact}
-              </Typography>
+              <div style={{ marginTop: "10%" }}>
+                <Typography variant="caption" gutterBottom>
+                  ASO: {client.data.aso}
+                </Typography>
+                <br />
+                <Typography variant="caption" gutterBottom>
+                  Primary Contact: {client.data.primaryContact}
+                </Typography>
+              </div>
             </div>
           )}
           <Modal
@@ -229,29 +279,33 @@ function ClientDetail(appState) {
                 <h2 id="transition-modal-title">Edit Client</h2>
                 <form onSubmit={handleEditClient}>
                   <TextField
+                    required
                     label="Company Name"
                     className={classes.textField}
                     margin="normal"
-                    placeholder={client.data.name}
-                    value={client.putName}
-                    onChange={handleInputChange("putName")}
+                    defaultValue={client.name}
+                    value={client.name}
+                    onChange={handleInputChange("name")}
                   />
                   <br />
                   <TextField
+                    required
                     label="ASO"
                     className={classes.textField}
                     margin="normal"
-                    value={client.putAso}
-                    onChange={handleInputChange("putAso")}
-                    placeholder={client.data.name}
+                    value={client.aso}
+                    onChange={handleInputChange("aso")}
+                    defaultValue={client.name}
                   />
                   <br />
                   <TextField
+                    required
                     label="Primary Contact"
                     className={classes.textField}
                     margin="normal"
-                    value={client.putPrimaryContact}
-                    onChange={handleInputChange("putPrimaryContact")}
+                    value={client.primaryContact}
+                    onChange={handleInputChange("primaryContact")}
+                    defaultValue={client.primaryContact}
                   />
                   <br />
                   <Button className={classes.button} type="submit">
@@ -284,6 +338,31 @@ function ClientDetail(appState) {
           </TabPanel>
         </Paper>
       </div>
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left"
+        }}
+        open={snacks.open}
+        autoHideDuration={6000}
+        onClose={closeSnack}
+        ContentProps={{
+          "aria-describedby": "message-id"
+        }}
+        message={<span id="message-id">{snacks.name}</span>}
+        action={[
+          <IconButton
+            key="close"
+            aria-label="close"
+            color="inherit"
+            className={classes.close}
+            onClick={closeSnack}
+          >
+            <CloseIcon />
+          </IconButton>
+        ]}
+      />
     </div>
   );
 }
