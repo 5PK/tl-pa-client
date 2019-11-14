@@ -7,12 +7,6 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
-import ListItemText from "@material-ui/core/ListItemText";
-import EditIcon from "@material-ui/icons/Edit";
-import IconButton from "@material-ui/core/IconButton";
-import Snackbar from "@material-ui/core/Snackbar";
-import CloseIcon from "@material-ui/icons/Close";
-import AddIcon from "@material-ui/icons/Add";
 import TextField from "@material-ui/core/TextField";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -62,24 +56,21 @@ export default function ContactList(props) {
   });
   const [contact, setContact] = React.useState({
     list: contacts,
-    loading: false,
-    firstName:"",
-    lastName:"",
-    email:""
+    loading: false
   });
 
-  const openModal = test => {
-
-    console.log(test)
+  const openModal = contact => {
+    console.log(contact)
     setModal({
       ...modal,
       open: true,
-      firstName:test.firstName,
-      lastName:test.lastName,
-      email: test.email,
-      id: test.id
+      firstName: contact.firstName,
+      lastName: contact.lastName,
+      email: contact.email,
+      id: contact.id
     });
   };
+
   const closeModal = () => {
     setModal({ ...modal, open: false });
   };

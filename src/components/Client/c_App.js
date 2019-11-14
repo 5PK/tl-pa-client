@@ -185,7 +185,7 @@ function ListItemLink(props) {
           {clientList.name}
         </Grid>
         <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
-          2
+          {clientList.bx3_alerts.length}
         </Grid>
         <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
           {clientList.primaryContact}
@@ -208,9 +208,9 @@ const ClientApp = appState => {
     name: "",
     aso: "",
     primaryContact: "",
-    list: []
+    list: [],
+    loading:true
   });
-  const [loading, setLoading] = useState(true);
   const [modal, setModal] = React.useState({
     open: false
   });
@@ -257,7 +257,7 @@ const ClientApp = appState => {
     console.log(response);
     closeModal();
     sendSnack(response);
-    setLoading(true);
+    setClient({...client, loading:true})
     fetchClientList()
   };
 
@@ -275,8 +275,7 @@ const ClientApp = appState => {
       console.log(res);
       const resJson = await res.json();
       console.log(resJson)
-      setClient({ ...client, list: resJson.data });
-      setLoading(false);
+      setClient({ ...client, list: resJson.data, loading:false });
     } catch (error) {
       sendSnack({body:error.name + ": Failed getting Clients!"})
     }
@@ -345,7 +344,7 @@ const ClientApp = appState => {
               textAlign: "center"
             }}
           >
-            {loading ? (
+            {client.loading ? (
               <Ring style={{ margin: "auto" }} />
             ) : (
               <List style={{ padding: 0 }} className={classes.clientList}>

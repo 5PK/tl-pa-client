@@ -24,7 +24,6 @@ import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 
-
 // Custom Component Import
 import ContactList from "./c_ContactList";
 
@@ -139,15 +138,22 @@ function ClientContactList(appState) {
   const handleAddContact = async event => {
     event.preventDefault();
     try {
+      console.log(appState);
+      console.log(contact.firstName);
+      console.log(clientId);
 
-      console.log(appState)
-      console.log(contact)
-      console.log(clientId)
-
-      const resData = await addContact(appState.jwt, contact, clientId);
-      const contact = await resData.json();
-      setContact({ ...contact, loading: true });
-      sendSnack({ body: "Contact Added!" });
+      const res = await addContact(appState.jwt, contact, clientId);
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson);
+      closeModal();
+      if (resJson.statusCode === 200) {
+        setContact({ ...contact, loading: true });
+        fetchClientContacts();
+        sendSnack({ body: "Contact Added!" });
+      } else {
+        sendSnack({ body: resJson.msg });
+      }
     } catch (error) {
       sendSnack({ body: error.name + " getting Contacts" });
     }
@@ -192,12 +198,20 @@ function ClientContactList(appState) {
           </Fab>
         </Grid>
       </Grid>
-      {contact.loading ? (
-        <Ring style={{ margin: "auto" }} />
-      ) : (
-        <ContactList props={{contacts: contact.list, appState:appState}} />
-      )}
-
+      <div
+        style={{
+          marginTop:"25px",
+          maxHeight: "40vh",
+          overflow: "scroll",
+          textAlign: "center"
+        }}
+      >
+        {contact.loading ? (
+          <Ring style={{ margin: "auto" }} />
+        ) : (
+          <ContactList props={{ contacts: contact.list, appState: appState }} />
+        )}
+      </div>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -212,13 +226,12 @@ function ClientContactList(appState) {
       >
         <Fade in={modal.open}>
           <div className={classes.paper}>
-            <h2 id="transition-modal-title">Add Alert</h2>
-            <form>
+            <h2 id="transition-modal-title">Add a New Contact!</h2>
+            <form onSubmit={handleAddContact}>
               <TextField
                 label="First Name"
                 className={classes.textField}
                 margin="normal"
-                onSubmit={handleAddContact}
                 onChange={handleChange("firstName")}
               />
               <br />
