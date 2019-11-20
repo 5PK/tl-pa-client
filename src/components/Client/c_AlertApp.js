@@ -188,7 +188,7 @@ function AlertApp(appState) {
       contacts: []
     });
 
-    setPersonName([])
+    setPersonName([]);
   };
 
   const closeSnack = (event, reason) => {
@@ -232,9 +232,9 @@ function AlertApp(appState) {
 
   const handleContactSelect = event => {
     console.log(event.target.value);
-    var arr = event.target.value
+    var arr = event.target.value;
     setPersonName(arr);
-    console.log(personName)
+    console.log(personName);
   };
 
   const handleAddAlert = async event => {
@@ -304,14 +304,14 @@ function AlertApp(appState) {
   } = modal;
 
   const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
+  const ITEM_PADDING_TOP = 8;
   const MenuProps = {
     PaperProps: {
       style: {
         maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
-    },
+        width: 250
+      }
+    }
   };
 
   return (

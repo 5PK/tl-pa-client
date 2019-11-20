@@ -167,38 +167,73 @@ function ListItemLink(props) {
     [to]
   );
 
-  return (
-    <li>
-      <ListItem
-        style={{
-          paddingLeft: 0,
-          paddingRight: 0,
-          paddingTop: 15,
-          paddingBottom: 15
-        }}
-        button
-        value={clientList.id}
-        to={`/Client/${clientList.id}`}
-        component={renderLink}
-      >
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-          {clientList.name}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
-          {clientList.bx3_alerts.length}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-          {clientList.primaryContact}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-          {clientList.aso}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
-          {clientList.isVerified ? (<CheckIcon/>) : (<ClearIcon/>)}
-        </Grid>
-      </ListItem>
-    </li>
-  );
+  if(clientList.isVerified === true){
+    return (
+      <li>
+        <ListItem
+          style={{
+            paddingLeft: 0,
+            paddingRight: 0,
+            paddingTop: 15,
+            paddingBottom: 15
+          }}
+          button
+          value={clientList.id}
+          to={`/Client/${clientList.id}`}
+          component={renderLink}
+        >
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.name}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
+            {clientList.bx3_alerts.length}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.primaryContact}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.aso}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
+            {clientList.isVerified ? (<CheckIcon/>) : (<ClearIcon/>)}
+          </Grid>
+        </ListItem>
+      </li>
+    );
+  }else{
+    return (
+      <li>
+        <ListItem
+          style={{
+            paddingLeft: 0,
+            paddingRight: 0,
+            paddingTop: 15,
+            paddingBottom: 15
+          }}
+          button
+          disabled
+          value={clientList.id}
+        >
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.name}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
+            {clientList.bx3_alerts.length}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.primaryContact}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.aso}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
+            {clientList.isVerified ? (<CheckIcon/>) : (<ClearIcon/>)}
+          </Grid>
+        </ListItem>
+      </li>
+    );
+  }
+
 }
 
 const ClientApp = appState => {

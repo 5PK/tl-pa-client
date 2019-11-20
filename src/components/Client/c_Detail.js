@@ -327,14 +327,10 @@ function ClientDetail(appState) {
           <AppBar position="static">
             <Tabs value={tab.value} onChange={handleTabChange}>
               <Tab label="Open Alerts" {...a11yProps(0)} />
-              <Tab label="Sent Alerts" {...a11yProps(1)} />
             </Tabs>
           </AppBar>
           <TabPanel value={tab.value} index={0}>
             <AlertApp appState={appState} />
-          </TabPanel>
-          <TabPanel value={tab.value} index={1}>
-            Item Two
           </TabPanel>
         </Paper>
       </div>
