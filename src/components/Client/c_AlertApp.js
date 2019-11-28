@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect, useState } from "react";
-import { getAlerts, addAlert, getContacts } from "../../api";
+import { getAlerts, addAlert, getContacts } from "../../services/api-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -147,7 +147,7 @@ function AlertApp(appState) {
     name: ""
   });
 
-  const [contactttt, setContact] = React.useState({
+  const [contacts, setContact] = React.useState({
     list: [],
     loading: false
   });
@@ -159,12 +159,12 @@ function AlertApp(appState) {
   }, []);
 
   const openModal = async () => {
-    const contacts = await fetchContacts();
+    const contactList = await fetchContacts();
 
-    console.log(contacts);
-    setContact({ ...contactttt, list: contacts });
+    console.log(contactList);
+    setContact({ ...contacts, list: contactList });
 
-    if (contacts.length > 0) {
+    if (contactList.length > 0) {
       setModal({ ...modal, open: true });
     } else {
       sendSnack({ body: "Create a Contact before an Alert!" });
@@ -257,7 +257,24 @@ function AlertApp(appState) {
   };
 
   const handleCheckboxChange = property => event => {
-    setModal({ ...modal, [property]: event.target.checked });
+    if (property == "cpc"){
+      //setModal({ ...modal, [property]: event.target.checked });
+
+      setModal({ ...modal, title: false,
+        abstract: false,
+        spec: false,
+        claims: false,
+        applicant: false,
+        inventor: false,
+        assignee: false,
+        cpc:true});
+
+    }else{
+      setModal({ ...modal, [property]: event.target.checked, cpc: false });
+
+    }
+
+    
   };
 
   const handleTextChange = property => event => {
@@ -399,6 +416,7 @@ function AlertApp(appState) {
                         <FormControlLabel
                           control={
                             <Checkbox
+                              
                               checked={title}
                               onChange={handleCheckboxChange("title")}
                               value="title"
@@ -567,7 +585,7 @@ function AlertApp(appState) {
                 Add Recipients
               </InputLabel>
               <Select
-                labelId="demo-mutiple-checkbox-label"
+             
                 id="demo-mutiple-checkbox"
                 value={personName}
                 input={<Input />}
@@ -576,11 +594,11 @@ function AlertApp(appState) {
                 styles={{ minWidth: 300 }}
                 renderValue={selected => selected.join(", ")}
               >
-                {contactttt.list.map((cont, index, arr) => (
-                  <MenuItem key={cont.id} value={cont.id}>
-                    <Checkbox checked={personName.indexOf(cont.id) > -1} />
+                {contacts.list.map((contact, index, arr) => (
+                  <MenuItem key={contact.id} value={contact.id}>
+                    <Checkbox checked={personName.indexOf(contact.id) > -1} />
                     <ListItemText
-                      primary={cont.firstName + " " + cont.lastName}
+                      primary={contact.firstName + " " + contact.lastName}
                     />
                   </MenuItem>
                 ))}

@@ -1,5 +1,5 @@
 import React from "react";
-import { updateContact, getContacts } from "../../api";
+import { updateContact, getContacts } from "../../services/api-service";
 
 import { makeStyles } from "@material-ui/core/styles";
 

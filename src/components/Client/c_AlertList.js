@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { updateAlert, getAlerts } from "../../api";
+import { updateAlert, getAlerts } from "../../services/api-service";
 
 import Tooltip from "@material-ui/core/Tooltip";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -27,7 +27,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Input from "@material-ui/core/Input";
 import Checkbox from "@material-ui/core/Checkbox";
-import { Card, CardActions, CardContent, CardMedia } from "@material-ui/core/";
+import { Card, CardContent, CardMedia } from "@material-ui/core/";
 
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
     height: "90%",
     width: "90%",
     maxHeight: "90%"
-  },
+  }
 }));
 
 export default function AlertList(props) {
@@ -97,13 +97,12 @@ export default function AlertList(props) {
     alert: {}
   });
 
-  const [contactttt, setContact] = React.useState({
+  const [contacts, setContact] = React.useState({
     list: [],
     loading: false
   });
 
   const [personName, setPersonName] = React.useState([]);
-
 
   const openModal = alert => {
     console.log(alert);
@@ -114,6 +113,7 @@ export default function AlertList(props) {
       lastName: alert.lastName,
       email: alert.email,
       id: alert.id
+      
     });
   };
 
@@ -137,13 +137,27 @@ export default function AlertList(props) {
   };
 
   const handleCheckboxChange = property => event => {
-    setModal({ ...modal, [property]: event.target.checked });
+    if (property == "cpc"){
+      //setModal({ ...modal, [property]: event.target.checked });
+
+      setModal({ ...modal, title: false,
+        abstract: false,
+        spec: false,
+        claims: false,
+        applicant: false,
+        inventor: false,
+        assignee: false,
+        cpc:true});
+
+    }else{
+      setModal({ ...modal, [property]: event.target.checked, cpc: false });
+
+    }
   };
 
   const handleTextChange = property => event => {
     setModal({ ...modal, [property]: event.target.value });
   };
-
 
   const handleEditAlert = async event => {
     console.log("hello");
@@ -219,72 +233,16 @@ export default function AlertList(props) {
     console.log(personName);
   };
 
-  const handleAddAlert = async event => {
-    event.preventDefault();
-
-    var alert = {
-      name: modal.name,
-      contacts: personName,
-      query: modal.query,
-      clientId: cid
-    };
-  }
-  
-
-  /*
-                <Button
-                  id={alrt.id}
-                  onClick={e => openModal(alrt)}
-                  style={{
-                    width: "100%",
-                    height:"10%",
-                    textAlign: "left",
-                    justifyContent: "left"
-                  }}
-                >
-                  {alrt.name}
-                </Button>
-
-  */
-  /*
-  return (
-    <div className={classes.root}>
-      <List  style={{ padding: 0, margin: "20px" }}>
-        {alert.list.map(alrt => (
-          <Tooltip title="Edit Alert" placement="left-center">
-            <ListItem id={alrt.id} button style={{padding:10,margin:1,borderRadius:'8px'}} onClick={e => openModal(alrt)}>
-                <ListItemIcon>
-                  {alrt.isActive ? (
-                    <Notifications />
-                  ) : (
-                    <NotificationsOff/>
-                  )}  
-                </ListItemIcon>
-                <ListItemText primary={alrt.name} />
-                <ListItemText primary={alrt.name} />
-                <ListItemText primary={alrt.name} />
-
-            </ListItem>
-          </Tooltip>
-        ))}
-      </List>
-      
-    </div>
-
-  );
-
-  */
-
- const {
-  title,
-  abstract,
-  spec,
-  claims,
-  cpc,
-  applicant,
-  inventor,
-  assignee
-} = modal;
+  const {
+    title,
+    abstract,
+    spec,
+    claims,
+    cpc,
+    applicant,
+    inventor,
+    assignee
+  } = modal;
 
   return (
     <div className={classes.root}>
@@ -534,11 +492,11 @@ export default function AlertList(props) {
                 styles={{ minWidth: 300 }}
                 renderValue={selected => selected.join(", ")}
               >
-                {contactttt.list.map((cont, index, arr) => (
-                  <MenuItem key={cont.id} value={cont.id}>
-                    <Checkbox checked={personName.indexOf(cont.id) > -1} />
+                {contacts.list.map((contact, index, arr) => (
+                  <MenuItem key={contact.id} value={contact.id}>
+                    <Checkbox checked={personName.indexOf(contact.id) > -1} />
                     <ListItemText
-                      primary={cont.firstName + " " + cont.lastName}
+                      primary={contact.firstName + " " + contact.lastName}
                     />
                   </MenuItem>
                 ))}
@@ -546,7 +504,7 @@ export default function AlertList(props) {
               <Button
                 className={classes.button}
                 type="submit"
-                onClick={handleAddAlert}
+                onClick={handleEditAlert}
               >
                 Add Alert!
               </Button>

@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect } from "react";
-import { getClient, updateClient } from "../../api";
+import { getClient, updateClient } from "../../services/api-service";
 
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";

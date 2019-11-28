@@ -54,7 +54,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ListItemLink(props) {
-    const { icon, primary, to } = props;
+    const { icon, primary, to, isDisabled } = props;
   
     const renderLink = React.useMemo(
       () =>
@@ -68,7 +68,7 @@ function ListItemLink(props) {
   
     return (
       <li>
-        <ListItem button component={renderLink}>
+        <ListItem button disabled={isDisabled} component={renderLink}>
           {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
           <ListItemText primary={primary} />
         </ListItem>
@@ -81,6 +81,7 @@ ListItemLink.propTypes = {
     icon: PropTypes.element,
     primary: PropTypes.string.isRequired,
     to: PropTypes.string.isRequired,
+    isDisabled: PropTypes.bool.isRequired
   };
 
 const SideNav = ({ value, logout, id, jwt }) => {
@@ -116,9 +117,9 @@ const SideNav = ({ value, logout, id, jwt }) => {
       <div className={classes.toolbar} />
       <Divider />
       <List>
-        <ListItemLink to="/Client" primary="Client" />
-        <ListItemLink to="/Alert" primary="Alert" />
-        <ListItemLink to="/Account" primary="Account" />    
+        <ListItemLink to="/Client" primary="Client" isDisabled={false} />
+        <ListItemLink to="/Alert" primary="Alert" isDisabled={true} />
+        <ListItemLink to="/Account" primary="Account" isDisabled={true} />    
       </List>
       <Divider />
       <List>

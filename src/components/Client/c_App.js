@@ -1,6 +1,6 @@
 // App Imports
 import React, { useState, useEffect } from "react";
-import { getClients, addClient } from "../../api"
+import { getClients, addClient } from "../../services/api-service"
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -424,7 +424,7 @@ const ClientApp = appState => {
                 />
                 <br />
                 <TextField
-                  label="ASO"
+                  label="ASO Email"
                   className={classes.textField}
                   margin="normal"
                   value={client.aso}

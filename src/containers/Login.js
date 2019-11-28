@@ -1,6 +1,7 @@
 // App imports
 import React from "react";
-import { login } from "../api"
+import authenticationService from "../services/authentication-service"
+import {login} from "../services/api-service"
 
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -62,10 +63,22 @@ const Login = appState => {
     return user.email.length > 0 && user.password.length > 0;
   };
 
-  async function handleSubmit(event) {
+  const handleSubmit = async event => {
+    event.preventDefault();
+    /*
     console.log("Attempt Login");
     console.log(user);
     event.preventDefault();
+
+    var auth = await authenticationService.auth_login(user)
+
+    if(auth === true){
+      console.log('here is the true true')
+      console.log(appState.appState)
+      appState.appState.userHasAuthenticated(true, authenticationService.jwtValue);
+    }
+
+    */
 
     const loginResponse = await login(user);
     console.log(loginResponse)
@@ -86,10 +99,15 @@ const Login = appState => {
 
       console.log("Login.js | token? -> " + appState.jwt);
 
-      navigate("/Client");
+      //navigate("/Client");
+
+      
+
     } else {
       alert("Login Failed!");
     }
+
+
   }
 
   const handleInputChange = name => event => {
