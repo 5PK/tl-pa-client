@@ -1,5 +1,5 @@
 import React from "react";
-import { updateContact, getContacts } from "../../api";
+import { updateContact, getContacts, deleteContact } from "../../services/api-service";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -11,6 +11,16 @@ import TextField from "@material-ui/core/TextField";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
+
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+
+import Snackbar from "@material-ui/core/Snackbar";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
@@ -46,7 +56,11 @@ export default function ContactList(props) {
   const classes = useStyles();
 
   const [modal, setModal] = React.useState({
-    open: false
+    open: false,
+    firstName: "",
+    lastName: "",
+    email: "",
+    id: ""
   });
 
   const [snacks, setSnack] = React.useState({
@@ -59,6 +73,11 @@ export default function ContactList(props) {
     loading: false
   });
 
+  const [dialog, setDialog] = React.useState({
+    open: false,
+    contactDelId: null
+  });
+
   const openModal = contact => {
     console.log(contact)
     setModal({
@@ -67,7 +86,7 @@ export default function ContactList(props) {
       firstName: contact.firstName,
       lastName: contact.lastName,
       email: contact.email,
-      id: contact.id
+      contactid: contact.id
     });
   };
 
@@ -85,6 +104,17 @@ export default function ContactList(props) {
   const sendSnack = response => {
     setSnack({ ...snacks, open: true, name: response.body });
   };
+
+  const openDialog = () => {
+    var contactid = modal.contactid
+    closeModal();
+    setDialog({ ...Dialog, open: true, contactDelId:contactid });
+  };
+
+  const closeDialog = () => {
+    setDialog({ ...Dialog, open: false });
+  };
+
 
   const handleInputChange = property => event => {
     setModal({ ...modal, [property]: event.target.value });
@@ -130,6 +160,37 @@ export default function ContactList(props) {
     }
   };
 
+  const handleDeleteContact = async event => {
+    event.preventDefault();
+    try {
+
+      var promise = new Promise(async function(resolve, reject) {
+        console.log(dialog.contactDelId);
+        var res = await deleteContact(appState.jwt, dialog.contactDelId);
+        console.log(res);
+        var resJson = await res.json();
+        console.log(resJson);
+        if (resJson.statusCode === 200) {
+          resolve(resJson);
+        } else {
+          closeDialog();
+          sendSnack({ body: `Error Deleting Contact!: ${resJson.statusCode}` });
+          reject(resJson);
+        }
+      });
+
+      promise.then(function(value) {
+        closeDialog();
+        sendSnack({ body: value.msg });
+        setContact({ ...contact, loading: true });
+        fetchContacts();
+      });
+    } catch (error) {
+      closeDialog();
+      sendSnack({ body: `Error Deleting Alert!: ${error.name}` });
+    }
+  };
+
   return (
     <div className={classes.root}>
       {contact.loading ? (
@@ -137,8 +198,8 @@ export default function ContactList(props) {
       ) : (
         <List style={{ padding: 0, margin: "20px" }}>
           {contact.list.map(cont => (
-            <ListItem style={{ padding: 0, margin: 1 }}>
-              <Tooltip title="Edit Contact" placement="right-center">
+            <ListItem style={{ padding: 0, margin: 1 }} key={cont.id}>
+              <Tooltip title="Edit Contact" placement="right">
                 <Button
                   id={cont.id}
                   onClick={e => openModal(cont)}
@@ -204,10 +265,69 @@ export default function ContactList(props) {
               <Button className={classes.button} type="submit">
                 Submit
               </Button>
+              <Button
+                color="secondary"
+                className={classes.button}
+                onClick={openDialog}
+              >
+                DELETE ALERT
+              </Button>
             </form>
           </div>
         </Fade>
       </Modal>
+
+
+      <Dialog
+        open={dialog.open}
+        onClose={closeDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure you want to delete"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Make sure you want to delete this alert before proceeding. All data
+            will be lost.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleDeleteContact} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left"
+        }}
+        open={snacks.open}
+        autoHideDuration={6000}
+        onClose={closeSnack}
+        ContentProps={{
+          "aria-describedby": "message-id"
+        }}
+        message={<span id="message-id">{snacks.name}</span>}
+        action={[
+          <IconButton
+            key="close"
+            aria-label="close"
+            color="inherit"
+            className={classes.close}
+            onClick={closeSnack}
+          >
+            <CloseIcon />
+          </IconButton>
+        ]}
+      />
+
     </div>
   );
 }

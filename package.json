@@ -16,6 +16,7 @@
     "react-router-transition": "^1.4.0",
     "react-scripts": "3.1.1",
     "react-transition-group": "^4.3.0",
+    "rxjs": "^6.5.3",
     "styled-components": "^4.4.1"
   },
   "scripts": {

@@ -1,6 +1,6 @@
 // App Imports
-import React, { useState, useEffect } from "react";
-import { getClients, addClient } from "../../api"
+import React, { useEffect } from "react";
+import { getClients, addClient } from "../../services/api-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -14,18 +14,19 @@ import AddIcon from "@material-ui/icons/Add";
 import Container from "@material-ui/core/Container";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
-import SearchIcon from "@material-ui/icons/Search";
-import InputAdornment from "@material-ui/core/InputAdornment";
 import Grid from "@material-ui/core/Grid";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import CheckIcon from "@material-ui/icons/Check";
-import ClearIcon from '@material-ui/icons/Clear';
+import ClearIcon from "@material-ui/icons/Clear";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Divider from "@material-ui/core/Divider";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
+import RefreshIcon from '@material-ui/icons/Refresh';
+
+
 
 // Prop Types Import
 import PropTypes from "prop-types";
@@ -35,7 +36,6 @@ import { Ring } from "react-awesome-spinners";
 
 // React Router
 import { Link as RouterLink } from "react-router-dom";
-
 
 const headCells = [
   {
@@ -108,7 +108,6 @@ const useStyles = makeStyles(theme => ({
 function EnhancedTableHead(props) {
   const { classes, order, orderBy } = props;
 
-
   const flexContainer = {
     display: "flex",
     flexDirection: "row",
@@ -167,49 +166,92 @@ function ListItemLink(props) {
     [to]
   );
 
-  return (
-    <li>
-      <ListItem
-        style={{
-          paddingLeft: 0,
-          paddingRight: 0,
-          paddingTop: 15,
-          paddingBottom: 15
-        }}
-        button
-        value={clientList.id}
-        to={`/Client/${clientList.id}`}
-        component={renderLink}
-      >
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-          {clientList.name}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
-          {clientList.bx3_alerts.length}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-          {clientList.primaryContact}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-          {clientList.aso}
-        </Grid>
-        <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
-          {clientList.isVerified ? (<CheckIcon/>) : (<ClearIcon/>)}
-        </Grid>
-      </ListItem>
-    </li>
-  );
+  if (clientList.isVerified === true) {
+    return (
+      <li>
+        <ListItem
+          style={{
+            paddingLeft: 0,
+            paddingRight: 0,
+            paddingTop: 15,
+            paddingBottom: 15
+          }}
+          button
+          value={clientList.id}
+          to={`/Client/${clientList.id}`}
+          component={renderLink}
+        >
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.name}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
+            {clientList.bx3_alerts.length}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.primaryContact}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.aso}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
+            {clientList.isVerified ? <CheckIcon /> : <ClearIcon />}
+          </Grid>
+        </ListItem>
+      </li>
+    );
+  } else {
+    return (
+      <li>
+        <ListItem
+          style={{
+            paddingLeft: 0,
+            paddingRight: 0,
+            paddingTop: 15,
+            paddingBottom: 15
+          }}
+          button
+          disabled
+          value={clientList.id}
+        >
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.name}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
+            {clientList.bx3_alerts.length}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.primaryContact}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+            {clientList.aso}
+          </Grid>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
+            {clientList.isVerified ? <CheckIcon /> : <ClearIcon />}
+          </Grid>
+        </ListItem>
+      </li>
+    );
+  }
 }
 
 const ClientApp = appState => {
   appState = appState.appState;
+
   const classes = useStyles();
+
+
+  const [table, setTable] = React.useState({
+    order: "desc",
+    orderBy: "name",
+    property: ""
+  });
+
   const [client, setClient] = React.useState({
     name: "",
     aso: "",
     primaryContact: "",
     list: [],
-    loading:true
+    loading: true
   });
   const [modal, setModal] = React.useState({
     open: false
@@ -219,12 +261,6 @@ const ClientApp = appState => {
     type: 0,
     name: ""
   });
-
-  useEffect(() => {
-    console.log("ClientList3.js | token: " + appState.jwt);
-    fetchClientList()
-    console.log("ClientList3.js | clients: " + client.list);
-  }, []);
 
   const openModal = () => {
     setModal({ ...modal, open: true });
@@ -252,74 +288,94 @@ const ClientApp = appState => {
   const handleAddClient = async event => {
     event.preventDefault();
     console.log(appState);
-    const postResponse = await addClient(appState.jwt, client)
+    const postResponse = await addClient(appState.jwt, client);
     const response = await postResponse.json();
     console.log(response);
     closeModal();
     sendSnack(response);
-    setClient({...client, loading:true})
-    fetchClientList()
+    setClient({ ...client, loading: true });
+    fetchClientList();
   };
 
-  function handleRequestSort(event, property) {
-    const isDesc =
-      client.orderBy === client.property && client.order === "desc";
-    setClient({ ...client, order: isDesc ? "asc" : "desc" });
-    setClient({ ...client, orderBy: property });
-  }
+  const handleRequestSort = (event, property) => {
+    const isDesc = table.orderBy === table.property && table.order === "desc";
+    setTable({ ...table, v: isDesc ? "asc" : "desc" });
+    setTable({ ...table, orderBy: property });
+  };
 
   const fetchClientList = async () => {
+
+    //setClient({ ...client, loading: true });
+
     console.log(appState);
     try {
-      const res = await getClients(appState.jwt)
+      const res = await getClients(appState.jwt);
       console.log(res);
       const resJson = await res.json();
-      console.log(resJson)
-      setClient({ ...client, list: resJson.data, loading:false });
+      console.log(resJson);
+      setClient({ ...client, list: resJson.data, loading: false });
     } catch (error) {
-      sendSnack({body:error.name + ": Failed getting Clients!"})
+      sendSnack({ body: error.name + ": Failed getting Clients!" });
     }
-    
-
-    
   };
+
+  const refreshClientList = () => {
+    setClient({ ...client,loading: true });
+    fetchClientList()
+  }
+
+  useEffect(() => {
+    console.log("ClientList3.js | token: " + appState.jwt);
+    fetchClientList()
+    console.log("ClientList3.js | clients: " + client.list);
+  }, []);
+
+
 
   return (
     <Container>
       <Paper style={{ height: "75vh" }}>
         <div className={classes.listHeader}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+          <Grid container spacing={3} >
+            <Grid item xs={12} sm={6} style={{paddingBottom:"2%"}} >
               <Typography variant="h4" component="h2">
                 Client List
               </Typography>
             </Grid>
             <Grid
               container
-              alignItems="flex-end"
-              justify="flex-end"
+              alignItems="center"
+              justify="flex-start"
               direction="row"
+              style={{
+                paddingLeft:'1%'
+              }}
+              
             >
-              <Fab
-                size="small"
-                color="secondary"
-                aria-label="add"
-                className={classes.margin}
-                onClick={openModal}
-              >
-                <AddIcon />
-              </Fab>
-              <TextField
-                id="input-with-icon-textfield"
-                placeholder="Search"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  )
-                }}
-              />
+              <div>
+                <Fab
+                  size="small"
+                  color="secondary"
+                  aria-label="add"
+                  className={classes.margin}
+                  onClick={openModal}
+                >
+                  <AddIcon />
+                </Fab>
+              </div>
+              <div         style={{
+                paddingLeft:'1%'
+              }}>
+                <Fab
+                  size="small"
+                  color="primary"
+                  aria-label="add"
+                  className={classes.margin}
+                  onClick={ refreshClientList  }
+                >
+                  <RefreshIcon />
+                </Fab>
+              </div>
             </Grid>
           </Grid>
         </div>
@@ -389,7 +445,7 @@ const ClientApp = appState => {
                 />
                 <br />
                 <TextField
-                  label="ASO"
+                  label="ASO Email"
                   className={classes.textField}
                   margin="normal"
                   value={client.aso}

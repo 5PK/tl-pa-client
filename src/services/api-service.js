@@ -28,6 +28,19 @@ async function getClient(jwt, cid) {
   });
 }
 
+async function deleteClient(jwt, cid){
+  console.log(`${API_ROOT}/client/` + cid);
+
+  return fetch(`${API_ROOT}/client/` + cid, {
+    method: "DELETE",
+    headers: {
+      jwt: jwt,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
+  });
+}
+
 async function getClients(jwt) {
   return fetch(`${API_ROOT}/client`, {
     method: "GET",
@@ -82,11 +95,11 @@ async function getAlerts(jwt, cid) {
   });
 }
 
-async function updateAlert(jwt, alert) {
+async function updateAlert(jwt, aid) {
 
-  console.log(alert)
+  console.log(aid)
 
-  return fetch(`${API_ROOT}/contact/` + alert.id, {
+  return fetch(`${API_ROOT}/alert/` + aid, {
     method: "PUT",
     headers: {
       jwt: jwt,
@@ -98,6 +111,19 @@ async function updateAlert(jwt, alert) {
       lastName: alert.lastName,
       email: alert.email
     })
+  });
+}
+
+async function deleteAlert(jwt, aid){
+  console.log(`${API_ROOT}/alert/` + aid);
+
+  return fetch(`${API_ROOT}/alert/` + aid, {
+    method: "DELETE",
+    headers: {
+      jwt: jwt,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
   });
 }
 
@@ -148,6 +174,19 @@ async function updateContact(jwt, contact) {
   });
 }
 
+async function deleteContact(jwt, cid){
+  console.log(`${API_ROOT}/contact/` + cid);
+
+  return fetch(`${API_ROOT}/contact/` + cid, {
+    method: "DELETE",
+    headers: {
+      jwt: jwt,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
+  });
+}
+
 async function addContact(jwt, contact, clientId) {
   console.log("hello?")
   return fetch(`${API_ROOT}/contact/`, {
@@ -177,4 +216,8 @@ export {
   getContacts, 
   updateClient, 
   updateContact, 
-  addContact };
+  addContact,
+  deleteClient,
+  deleteAlert,
+  deleteContact 
+};

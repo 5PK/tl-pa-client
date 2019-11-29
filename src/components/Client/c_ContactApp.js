@@ -1,6 +1,6 @@
 // App Imports
 import React, { useState, useEffect } from "react";
-import { getContacts, addContact } from "../../api";
+import { getContacts, addContact } from "../../services/api-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -180,8 +180,6 @@ function ClientContactList(appState) {
           </Typography>
         </Grid>
         <Grid
-          xs={12}
-          sm={6}
           container
           alignItems="flex-end"
           justify="flex-end"

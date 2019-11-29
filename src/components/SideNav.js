@@ -1,5 +1,5 @@
-import React, {useEffect} from "react";
-import PropTypes from 'prop-types';
+import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Divider from "@material-ui/core/Divider";
@@ -12,11 +12,10 @@ import ListItemText from "@material-ui/core/ListItemText";
 import MenuIcon from "@material-ui/icons/Menu";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
-import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 
 import { Link as RouterLink } from "react-router-dom";
-
 
 const drawerWidth = 240;
 
@@ -54,52 +53,51 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ListItemLink(props) {
-    const { icon, primary, to } = props;
-  
-    const renderLink = React.useMemo(
-      () =>
-        React.forwardRef((itemProps, ref) => (
-          // With react-router-dom@^6.0.0 use `ref` instead of `innerRef`
-          // See https://github.com/ReactTraining/react-router/issues/6056
-          <RouterLink to={to} {...itemProps} innerRef={ref} />
-        )),
-      [to],
-    );
-  
-    return (
-      <li>
-        <ListItem button component={renderLink}>
-          {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
-          <ListItemText primary={primary} />
-        </ListItem>
-      </li>
-    );
-  }
+  const { icon, primary, to, isDisabled } = props;
 
+  const renderLink = React.useMemo(
+    () =>
+      React.forwardRef((itemProps, ref) => (
+        // With react-router-dom@^6.0.0 use `ref` instead of `innerRef`
+        // See https://github.com/ReactTraining/react-router/issues/6056
+        <RouterLink to={to} {...itemProps} innerRef={ref} />
+      )),
+    [to]
+  );
+
+  return (
+    <li>
+      <ListItem button disabled={isDisabled} component={renderLink}>
+        {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+        <ListItemText primary={primary} />
+      </ListItem>
+    </li>
+  );
+}
 
 ListItemLink.propTypes = {
-    icon: PropTypes.element,
-    primary: PropTypes.string.isRequired,
-    to: PropTypes.string.isRequired,
-  };
+  icon: PropTypes.element,
+  primary: PropTypes.string.isRequired,
+  to: PropTypes.string.isRequired,
+  isDisabled: PropTypes.bool.isRequired,
+  isLogout: PropTypes.bool.isRequired
+};
 
-const SideNav = ({ value, logout, id, jwt }) => {
-  const handleLogout = event => {
-    logout(id, false);
-  };
+const SideNav = appState => {
+  appState = appState.appState;
 
+  console.log(appState);
 
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  
-  useEffect(() => {
-
-    
-  });
 
   function handleDrawerToggle() {
     setMobileOpen(!mobileOpen);
+  }
+
+  function handleLogout(){
+    appState.userHasNotAuthenticated()
   }
 
   // we need to map the `scale` prop we define below
@@ -111,18 +109,39 @@ const SideNav = ({ value, logout, id, jwt }) => {
   //  };
   //}
 
+  function hello(){
+    console.log('hello')
+  }
+
   const drawer = (
     <div>
       <div className={classes.toolbar} />
       <Divider />
       <List>
-        <ListItemLink to="/Client" primary="Client" />
-        <ListItemLink to="/Alert" primary="Alert" />
-        <ListItemLink to="/Account" primary="Account" />    
+        <ListItemLink
+          to="/Client"
+          primary="Client"
+          isDisabled={false}
+          isLogout={false}
+        />
+        <ListItemLink
+          to="/Alert"
+          primary="Alert"
+          isDisabled={true}
+          isLogout={false}
+        />
+        <ListItemLink
+          to="/Account"
+          primary="Account"
+          isDisabled={true}
+          isLogout={false}
+        />
       </List>
       <Divider />
       <List>
-        <ListItemLink to="/" primary="Logout" onClick={handleLogout}/>
+        <ListItem button onClick={handleLogout}>
+          <ListItemText primary="Logout" />
+        </ListItem>
       </List>
     </div>
   );
@@ -146,7 +165,7 @@ const SideNav = ({ value, logout, id, jwt }) => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <nav className={classes.drawer} >
+      <nav className={classes.drawer}>
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
           <Drawer
@@ -176,7 +195,6 @@ const SideNav = ({ value, logout, id, jwt }) => {
           </Drawer>
         </Hidden>
       </nav>
-     
     </div>
   );
 };
