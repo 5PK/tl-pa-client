@@ -32,8 +32,13 @@ import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 
+import TableSortLabel from "@material-ui/core/TableSortLabel";
+
 // Custom Component Import
 import AlertList from "./c_AlertList";
+
+// Prop Types Import
+import PropTypes from "prop-types";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
@@ -115,10 +120,97 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+
+
+const headCells = [
+  {
+    id: "isActive",
+    numeric: true,
+    label: "Active",
+    className: "headerIsActive",
+    size: 1
+  },
+  {
+    id: "name",
+    numeric: false,
+    label: "Alert Name",
+    className: "headerName",
+    size: 4
+  },
+  {
+    id: "conditionLength",
+    numeric: true,
+    label: "# of Conditions",
+    className: "headerConditionLength",
+    size: 4
+  },
+  {
+    id: "contactLength",
+    numeric: true,
+    label: "# of Contacts",
+    className: "headerContactLength",
+    size: 3
+  }
+];
+
+
+function EnhancedTableHead(props) {
+  const { classes, order, orderBy } = props;
+
+  const flexContainer = {
+    display: "flex",
+    flexDirection: "row",
+    padding: 0
+  };
+
+  /*
+  const createSortHandler = property => event => {
+    onRequestSort(event, property);
+  };
+  */
+
+  return (
+    <div>
+      <List style={flexContainer}>
+        {headCells.map(headCell => (
+          <ListItem
+            key={headCell.id}
+            align={headCell.numeric ? "right" : "left"}
+            className={headCell.className}
+          >
+            <TableSortLabel active={orderBy === headCell.id} direction={order}>
+              {headCell.label}
+              {orderBy === headCell.id ? (
+                <span className={classes.visuallyHidden}>
+                  {order === "desc" ? "sorted descending" : "sorted ascending"}
+                </span>
+              ) : null}
+            </TableSortLabel>
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+    </div>
+  );
+}
+
+EnhancedTableHead.propTypes = {
+  classes: PropTypes.object.isRequired,
+  onRequestSort: PropTypes.func.isRequired,
+  order: PropTypes.oneOf(["asc", "desc"]).isRequired,
+  orderBy: PropTypes.string.isRequired
+};
+
 function AlertApp(appState) {
   const classes = useStyles();
   const cid = window.location.pathname.replace("/Client/", "");
   appState = appState.appState;
+
+  const [table, setTable] = React.useState({
+    order:"desc",
+    orderBy: "name",
+    property:""
+  })
 
   const [alert, setAlert] = React.useState({
     list: [],
@@ -154,9 +246,6 @@ function AlertApp(appState) {
 
   const [personName, setPersonName] = React.useState([]);
 
-  useEffect(() => {
-    fetchAlerts();
-  }, []);
 
   const openModal = async () => {
     const contactList = await fetchContacts();
@@ -257,24 +346,23 @@ function AlertApp(appState) {
   };
 
   const handleCheckboxChange = property => event => {
-    if (property == "cpc"){
+    if (property == "cpc") {
       //setModal({ ...modal, [property]: event.target.checked });
 
-      setModal({ ...modal, title: false,
+      setModal({
+        ...modal,
+        title: false,
         abstract: false,
         spec: false,
         claims: false,
         applicant: false,
         inventor: false,
         assignee: false,
-        cpc:true});
-
-    }else{
+        cpc: true
+      });
+    } else {
       setModal({ ...modal, [property]: event.target.checked, cpc: false });
-
     }
-
-    
   };
 
   const handleTextChange = property => event => {
@@ -301,13 +389,21 @@ function AlertApp(appState) {
       claims: modal.claims,
       applicant: modal.applicant,
       inventor: modal.inventor,
-      assignee: modal.assignee
+      assignee: modal.assignee,
+      cpc: modal.cpc
     };
 
     query.push(subCondition);
 
     setModal({ ...modal, query: query });
   };
+
+  function handleRequestSort(event, property) {
+    const isDesc =
+    table.orderBy === table.property && table.order === "desc";
+    setTable({ ...table, order: isDesc ? "asc" : "desc" });
+    setTable({ ...table, orderBy: property });
+  }
 
   const {
     title,
@@ -331,6 +427,11 @@ function AlertApp(appState) {
     }
   };
 
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
+
+
   return (
     <div className={classes.root}>
       <Grid container spacing={3}>
@@ -340,8 +441,6 @@ function AlertApp(appState) {
           </Typography>
         </Grid>
         <Grid
-          xs={12}
-          sm={6}
           container
           alignItems="flex-end"
           justify="flex-end"
@@ -358,14 +457,35 @@ function AlertApp(appState) {
           </Fab>
         </Grid>
       </Grid>
-      {alert.loading ? (
-        <Ring style={{ margin: "auto" }} />
-      ) : (
-        <AlertList
-          alerts={alert.list}
-          props={{ alerts: alert.list, appState: appState }}
+      <div
+        className={classes.table}
+        aria-labelledby="Client List"
+        size={"medium"}
+      >
+        <EnhancedTableHead
+          classes={classes}
+          order={"asc"}
+          orderBy={"null"}
+          onRequestSort={handleRequestSort}
+         
         />
-      )}
+      </div>
+      <div
+        style={{
+          maxHeight: "50vh",
+          overflow: "scroll",
+          textAlign: "center"
+        }}
+      >
+        {alert.loading ? (
+          <Ring style={{ margin: "auto" }} />
+        ) : (
+          <AlertList
+            alerts={alert.list}
+            props={{ alerts: alert.list, appState: appState, contacts: contacts.list}}
+          />
+        )}
+      </div>
 
       <Modal
         className={classes.modal}
@@ -391,7 +511,7 @@ function AlertApp(appState) {
             />
             <br />
             <Grid container spacing={3} styles={{ height: "100%" }}>
-              <Grid item xs={6} spacing={2}>
+              <Grid item xs={6} >
                 <Typography
                   variant="h4"
                   component="h2"
@@ -416,7 +536,6 @@ function AlertApp(appState) {
                         <FormControlLabel
                           control={
                             <Checkbox
-                              
                               checked={title}
                               onChange={handleCheckboxChange("title")}
                               value="title"
@@ -508,7 +627,7 @@ function AlertApp(appState) {
                   </Button>
                 </FormControl>
               </Grid>
-              <Grid item xs={6} spacing={2}>
+              <Grid item xs={6} >
                 <Typography
                   variant="h4"
                   component="h2"
@@ -585,7 +704,6 @@ function AlertApp(appState) {
                 Add Recipients
               </InputLabel>
               <Select
-             
                 id="demo-mutiple-checkbox"
                 value={personName}
                 input={<Input />}

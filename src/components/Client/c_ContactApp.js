@@ -180,8 +180,6 @@ function ClientContactList(appState) {
           </Typography>
         </Grid>
         <Grid
-          xs={12}
-          sm={6}
           container
           alignItems="flex-end"
           justify="flex-end"

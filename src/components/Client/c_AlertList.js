@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useEffect }  from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { updateAlert, getAlerts } from "../../services/api-service";
+import {
+  updateAlert,
+  getAlerts,
+  deleteAlert,
+  getContacts
+} from "../../services/api-service";
 
 import Tooltip from "@material-ui/core/Tooltip";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -32,6 +37,12 @@ import { Card, CardContent, CardMedia } from "@material-ui/core/";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
+
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -96,8 +107,12 @@ export default function AlertList(props) {
     loading: false,
     alert: {}
   });
+  const [dialog, setDialog] = React.useState({
+    open: false,
+    alertDelId: null
+  });
 
-  const [contacts, setContact] = React.useState({
+  const [contacts, setContacts] = React.useState({
     list: [],
     loading: false
   });
@@ -106,19 +121,34 @@ export default function AlertList(props) {
 
   const openModal = alert => {
     console.log(alert);
+
+    var query = JSON.parse(alert.query)
+    var contacts = JSON.parse("{\"arr\":" + alert.contacts + "}")
+
+    setPersonName(contacts.arr);
+
     setModal({
       ...modal,
       open: true,
-      firstName: alert.firstName,
-      lastName: alert.lastName,
-      email: alert.email,
-      id: alert.id
-      
+      name: alert.name,
+      alertid: alert.id,
+      query: query,
+      contacts: contacts.arr
     });
   };
 
   const closeModal = () => {
     setModal({ ...modal, open: false });
+  };
+
+  const openDialog = () => {
+    var alertid = modal.alertid
+    closeModal();
+    setDialog({ ...Dialog, open: true, alertDelId:alertid });
+  };
+
+  const closeDialog = () => {
+    setDialog({ ...Dialog, open: false });
   };
 
   const closeSnack = (event, reason) => {
@@ -137,21 +167,22 @@ export default function AlertList(props) {
   };
 
   const handleCheckboxChange = property => event => {
-    if (property == "cpc"){
+    if (property == "cpc") {
       //setModal({ ...modal, [property]: event.target.checked });
 
-      setModal({ ...modal, title: false,
+      setModal({
+        ...modal,
+        title: false,
         abstract: false,
         spec: false,
         claims: false,
         applicant: false,
         inventor: false,
         assignee: false,
-        cpc:true});
-
-    }else{
+        cpc: true
+      });
+    } else {
       setModal({ ...modal, [property]: event.target.checked, cpc: false });
-
     }
   };
 
@@ -160,29 +191,34 @@ export default function AlertList(props) {
   };
 
   const handleEditAlert = async event => {
-    console.log("hello");
-    console.log(modal);
-    console.log(appState);
-
     event.preventDefault();
     try {
-      const res = await updateAlert(appState.jwt, modal);
-      console.log(res);
-      const resJson = await res.json();
-      console.log(resJson);
 
-      if (resJson.statusCode === 200) {
+      var promise = new Promise(async function(resolve, reject) {
+        const res = await updateAlert(appState.jwt, modal.alertid);
+        console.log(res);
+        const resJson = await res.json();
+        console.log(resJson);
+        closeModal();
         setAlert({ ...alert, loading: true });
-        closeModal();
+
+        if (resJson.statusCode === 200) {
+          resolve(resJson);
+        } else {
+          sendSnack({ body: `Error Updating Alert!: ${resJson.statusCode}` });
+          setAlert({ ...alert, loading: false });
+          reject(resJson);
+        }
+      });
+
+      promise.then(function(value) {
+        sendSnack({ body: value.msg });
         fetchAlerts();
-        sendSnack({ body: "Alert Updated!" });
-      } else {
-        closeModal();
-        sendSnack({ body: `Error Updating Alert!: ${resJson.statusCode}` });
-      }
+      });
     } catch (error) {
       closeModal();
       sendSnack({ body: `Error Updating Alert!: ${error.name}` });
+      setAlert({ ...alert, loading: false });
     }
   };
 
@@ -233,6 +269,60 @@ export default function AlertList(props) {
     console.log(personName);
   };
 
+  const getQueryLength = queries => {
+    var parseQuery = JSON.parse(queries);
+    return parseQuery.length;
+  };
+
+  const getContactLength = contacts => {
+    var parseContacts = JSON.parse('{"arr":' + contacts + "}");
+    return parseContacts.arr.length;
+  };
+
+  const handleDeleteAlert = async event => {
+    event.preventDefault();
+    try {
+
+      var promise = new Promise(async function(resolve, reject) {
+        console.log(dialog.alertDelId);
+        var res = await deleteAlert(appState.jwt, dialog.alertDelId);
+        console.log(res);
+        var resJson = await res.json();
+        console.log(resJson);
+        if (resJson.statusCode === 200) {
+          resolve(resJson);
+        } else {
+          closeDialog();
+          sendSnack({ body: `Error Deleting Alert!: ${resJson.statusCode}` });
+          reject(resJson);
+        }
+      });
+
+      promise.then(function(value) {
+        closeDialog();
+        sendSnack({ body: value.msg });
+        setAlert({ ...alert, loading: true });
+        fetchAlerts();
+      });
+    } catch (error) {
+      closeDialog();
+      sendSnack({ body: `Error Deleting Alert!: ${error.name}` });
+    }
+  };
+
+  const fetchContacts = async () => {
+
+    try {
+      const res = await getContacts(appState.jwt, cid);
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson);
+      setContacts({ ...contacts, list: resJson.data, loading: false });
+    } catch (error) {
+      sendSnack({ body: error.name + " getting Contacts" });
+    }
+  };
+
   const {
     title,
     abstract,
@@ -243,12 +333,19 @@ export default function AlertList(props) {
     inventor,
     assignee
   } = modal;
+  
+
+  useEffect(() => {
+    console.log(appState);
+    fetchContacts();
+  }, []);
 
   return (
     <div className={classes.root}>
       <List style={{ padding: 0, margin: "20px" }}>
         {alert.list.map(alrt => (
-          <Tooltip title="Edit Alert" placement="left-center">
+          
+          <Tooltip title="Edit Alert" placement="left" key={alrt.id}>
             <ListItem
               id={alrt.id}
               button
@@ -259,8 +356,8 @@ export default function AlertList(props) {
                 {alrt.isActive ? <Notifications /> : <NotificationsOff />}
               </ListItemIcon>
               <ListItemText primary={alrt.name} />
-              <ListItemText primary={alrt.name} />
-              <ListItemText primary={alrt.name} />
+              <ListItemText primary={getQueryLength(alrt.query)} />
+              <ListItemText primary={getContactLength(alrt.contacts)} />
             </ListItem>
           </Tooltip>
         ))}
@@ -280,17 +377,21 @@ export default function AlertList(props) {
       >
         <Fade in={modal.open}>
           <div className={classes.paper}>
-            <h1 id="transition-modal-title">Add an Alert</h1>
+            <h1 id="transition-modal-title">Edit Alert</h1>
             <TextField
               label="Alert Name"
               className={classes.textField}
               margin="normal"
               onChange={handleTextChange("name")}
               style={{ width: "80%" }}
+        
+              defaultValue={modal.name}
+
+
             />
             <br />
             <Grid container spacing={3} styles={{ height: "100%" }}>
-              <Grid item xs={6} spacing={2}>
+              <Grid item xs={6} >
                 <Typography
                   variant="h4"
                   component="h2"
@@ -406,7 +507,7 @@ export default function AlertList(props) {
                   </Button>
                 </FormControl>
               </Grid>
-              <Grid item xs={6} spacing={2}>
+              <Grid item xs={6} >
                 <Typography
                   variant="h4"
                   component="h2"
@@ -424,10 +525,10 @@ export default function AlertList(props) {
                   <List style={{ padding: 0, margin: "20px" }}>
                     {modal.query.length > 0 &&
                       modal.query.map((query, index, arr) => (
-                        <ListItem>
+                        <ListItem key={query}>
                           <Tooltip
                             title="Delete this Condition"
-                            placement="right-center"
+                            placement="right"
                             classes={classes.tooltip}
                           >
                             <Card
@@ -437,11 +538,6 @@ export default function AlertList(props) {
                               }}
                             >
                               <CardActionArea>
-                                <CardMedia
-                                  className={classes}
-                                  image="/static/images/cards/contemplative-reptile.jpg"
-                                  title="Contemplative Reptile"
-                                />
                                 <CardContent>
                                   <Typography
                                     gutterBottom
@@ -483,7 +579,6 @@ export default function AlertList(props) {
                 Add Recipients
               </InputLabel>
               <Select
-                labelId="demo-mutiple-checkbox-label"
                 id="demo-mutiple-checkbox"
                 value={personName}
                 input={<Input />}
@@ -506,12 +601,69 @@ export default function AlertList(props) {
                 type="submit"
                 onClick={handleEditAlert}
               >
-                Add Alert!
+                Edit Alert!
+              </Button>
+              <Button
+                color="secondary"
+                className={classes.button}
+                onClick={openDialog}
+              >
+                DELETE ALERT
               </Button>
             </FormControl>
           </div>
         </Fade>
       </Modal>
+
+      <Dialog
+        open={dialog.open}
+        onClose={closeDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Are you sure you want to delete"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Make sure you want to delete this alert before proceeding. All data
+            will be lost.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleDeleteAlert} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left"
+        }}
+        open={snacks.open}
+        autoHideDuration={6000}
+        onClose={closeSnack}
+        ContentProps={{
+          "aria-describedby": "message-id"
+        }}
+        message={<span id="message-id">{snacks.name}</span>}
+        action={[
+          <IconButton
+            key="close"
+            aria-label="close"
+            color="inherit"
+            className={classes.close}
+            onClick={closeSnack}
+          >
+            <CloseIcon />
+          </IconButton>
+        ]}
+      />
     </div>
   );
 }

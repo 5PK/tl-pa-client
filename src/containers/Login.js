@@ -93,15 +93,7 @@ const Login = appState => {
 
       appState.userHasAuthenticated(true, response.data.token);
 
-      console.log(
-        "Login.js | 2 IsAuthenticated? -> " + appState.isAuthenticated
-      );
-
-      console.log("Login.js | token? -> " + appState.jwt);
-
-      //navigate("/Client");
-
-      
+ 
 
     } else {
       alert("Login Failed!");

@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect } from "react";
-import { getClient, updateClient } from "../../services/api-service";
+import { getClient, updateClient, deleteClient } from "../../services/api-service";
 
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
@@ -20,15 +20,26 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import Button from "@material-ui/core/Button";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import EditIcon from "@material-ui/icons/Edit";
 import IconButton from "@material-ui/core/IconButton";
 import Snackbar from "@material-ui/core/Snackbar";
 import CloseIcon from "@material-ui/icons/Close";
 
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 // Custom Components
 import AlertApp from "./c_AlertApp";
 import ContactApp from "./c_ContactApp";
+
+// React Awesome Spinner
+import { Ring } from "react-awesome-spinners";
+
+import { withRouter } from 'react-router-dom';
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -150,11 +161,9 @@ function ClientDetail(appState) {
     loading: true
   });
 
-  useEffect(() => {
-    console.log(window.location.pathname);
-    fetchClient();
-    console.log(client.data);
-  }, []);
+  const [dialog, setDialog] = React.useState({
+    open: false
+  });
 
   const handleTabChange = (event, newValue) => {
     setTab({ ...tab, value: newValue });
@@ -187,6 +196,15 @@ function ClientDetail(appState) {
     setModal({ ...modal, open: false });
   };
 
+  const openDialog = () => {
+    closeModal()
+    setDialog({...Dialog, open:true});
+  };
+
+  const closeDialog = () => {
+    setDialog({...Dialog, open:false});
+  };
+
   const closeSnack = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -202,11 +220,32 @@ function ClientDetail(appState) {
     setClient({ ...client, [property]: event.target.value });
   };
 
-  const handleDelete = () => {
-    console.log("delete");
+  const handleDeleteClient = async event => {
+    event.preventDefault();
+    try {
+      const res = await deleteClient(appState.jwt, cid);
+      console.log(res);
+      const resJson = await res.json();
+      console.log(resJson);
+      if (resJson.statusCode === 200) {
+        
+        sendSnack({ body: resJson.msg });
+        closeDialog();
+        appState.history.push('/Client');
+
+      } else {
+        closeDialog();
+        sendSnack({ body: `Error Deleting Client!: ${resJson.statusCode}` });
+      }
+    } catch (error) {
+      closeDialog();
+      sendSnack({ body: `Error Deleting Client!: ${error.name}` });
+    }
   };
 
+
   const handleEditClient = async event => {
+    setClient({ ...client, loading: true });
     event.preventDefault();
     try {
       const res = await updateClient(appState.jwt, client, cid);
@@ -215,8 +254,9 @@ function ClientDetail(appState) {
       console.log(resJson);
       closeModal();
       if (resJson.statusCode === 200) {
-        setClient({ ...alert, data: resJson.data, loading: false });
-        sendSnack({ body: "Client Updated!" });
+        console.log(resJson.data);
+        setClient({ ...client, data: resJson.data, loading: false });
+        sendSnack({ body: resJson.msg });
       } else {
         closeModal();
         sendSnack({ body: `Error Updating Client!: ${resJson.statusCode}` });
@@ -227,12 +267,19 @@ function ClientDetail(appState) {
     }
   };
 
+
+  useEffect(() => {
+    console.log(window.location.pathname);
+    fetchClient();
+    console.log(client.data);
+  }, []);
+
   return (
     <div className={classes.wrapper}>
       <div className={classes.leftCol}>
         <Paper className={classes.clientCard}>
           {client.loading ? (
-            <CircularProgress style={{ margin: "auto" }} />
+            <Ring style={{ margin: "auto" }} />
           ) : (
             <div className={classes.detailHeader}>
               <Typography
@@ -248,7 +295,7 @@ function ClientDetail(appState) {
                 style={{ display: "inline-block", float: "right" }}
                 onClick={openModal}
               >
-                <EditIcon fontSize="medium" />
+                <EditIcon />
               </IconButton>
               <br />
               <div style={{ marginTop: "10%" }}>
@@ -311,10 +358,40 @@ function ClientDetail(appState) {
                   <Button className={classes.button} type="submit">
                     Submit
                   </Button>
+                  <Button
+                    color="secondary"
+                    className={classes.button}
+                    onClick={openDialog}
+                  >
+                    DELETE CLIENT
+                  </Button>
                 </form>
               </div>
             </Fade>
           </Modal>
+          <Dialog
+            open={dialog.open}
+            onClose={closeDialog}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Are you sure you want to delete?"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Make sure you want to delete this client before proceeding. All data will be lost.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={closeDialog} color="primary">
+                Disagree
+              </Button>
+              <Button onClick={handleDeleteClient} color="primary" autoFocus>
+                Agree
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Paper>
 
         <Paper className={classes.contactCard}>
@@ -363,4 +440,4 @@ function ClientDetail(appState) {
   );
 }
 
-export default ClientDetail;
+export default withRouter(ClientDetail);

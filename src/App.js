@@ -63,7 +63,7 @@ export default class App extends React.Component {
 
   userHasAuthenticated = (auth, token) => {
     console.log("app.js userHasAuth()" + auth + " " + token);
-    document.cookie = { jwt: token };
+    
     this.setState({ isAuthenticated: auth, jwt: token });
   };
 
@@ -73,18 +73,17 @@ export default class App extends React.Component {
     this.setState({ isAuthenticated: false, jwt: null });
   };
 
-  handleLogout = event => {
-    this.userHasNotAuthenticated();
-  };
 
   render() {
+
+    console.log(this.state.jwt)
    
 
     const childProps = {
       isAuthenticated: this.state.isAuthenticated,
       jwt: this.state.jwt,
       userHasAuthenticated: this.userHasAuthenticated,
-      userHasNotAuthenticated: this.userHasNotAuthenticated
+      userHasNotAuthenticated: this.userHasNotAuthenticated,
     };
 
 
@@ -100,6 +99,7 @@ export default class App extends React.Component {
     if (!this.state.isAuthenticated) {
       return (
         <Router>
+          <Route path="/Client" render={() => <Redirect to="/Landing" appState={childProps}/>} />
           <Route
             path="/"
             render={() => <Redirect to="/Landing" appState={childProps} />}
@@ -118,7 +118,7 @@ export default class App extends React.Component {
     } else {
       return (
         <Router>
-          <SideNav logout={this.handleLogout} jwt={this.props.jwt} />
+          <SideNav appState={childProps}/>
           <Container style={appStyle}>
             <Switch>
               <Route exact path="/" render={() => <Redirect to="/Client" />} />
