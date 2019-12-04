@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { register, confirmCode, login } from "../services/api-service";
 
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -6,7 +7,6 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-
 
 const styles = {
   textField: {
@@ -92,23 +92,28 @@ export default class Register extends Component {
     });
   }
 
-  handleSubmit = async event => {
+
+
+  handleRegistrationSubmit = async event => {
     event.preventDefault();
 
     this.setState({ isLoading: true });
 
     try {
-      /*
-      const newUser = await Auth.signUp({
-        username: this.state.email,
-        password: this.state.password
-      });
-      */
-      this.setState({
-        newUser: false
-      });
-      } catch (e) {
-        alert(e.message);
+
+      const res = await register(this.state.email, this.state.password)
+      const resJson = await res.json();
+  
+      if (resJson.statusCode == 200){
+        alert('Registration Success!')
+        this.setState({
+          newUser: false
+        });
+      }else{
+        alert('Registration Failed!')
+      }
+    } catch (e) {
+      alert(e.message);
     }
 
     this.setState({ isLoading: false });
@@ -120,12 +125,29 @@ export default class Register extends Component {
     this.setState({ isLoading: true });
   
     try {
-      /*
-      await Auth.confirmSignUp(this.state.email, this.state.confirmationCode);
-      await Auth.signIn(this.state.email, this.state.password);
-      */
-      this.props.userHasAuthenticated(true);
-      this.props.history.push("/");
+
+      const confirm = await confirmCode(this.state.confirmationCode)
+      const confirmJson = await confirm.json();
+
+      if (confirmJson.statusCode == 200){
+        alert('Code Success!')
+  
+        const loginres = await login({email:this.state.email, password:this.state.password});
+        const loginJson = await loginres.json();
+
+        console.log(loginJson)
+
+        if (loginJson.statusCode == 200){
+          this.props.userHasAuthenticated(true);
+          this.props.history.push("/");
+        }else{
+          alert("error 2");
+          this.setState({ isLoading: false });
+        }
+      }else{
+        alert("error 1");
+        this.setState({ isLoading: false });
+      }
     } catch (e) {
       alert(e.message);
       this.setState({ isLoading: false });
@@ -190,7 +212,7 @@ export default class Register extends Component {
           <Typography variant="overline" display="block" gutterBottom>
             Registration
           </Typography>
-          <form onSubmit={this.handleSubmit} style={styles.regForm}>
+          <form onSubmit={this.handleRegistrationSubmit} style={styles.regForm}>
             <TextField
               id="standard-required"
               label="Email"

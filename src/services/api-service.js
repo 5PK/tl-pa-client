@@ -1,7 +1,7 @@
 import { API_ROOT } from "./api-config";
+import { connectableObservableDescriptor } from "rxjs/internal/observable/ConnectableObservable";
 
 async function login(values) {
-  console.log(`${API_ROOT}/login`);
   return fetch(`${API_ROOT}/login`, {
     method: "POST",
     headers: {
@@ -11,6 +11,33 @@ async function login(values) {
     body: JSON.stringify({
       email: values.email,
       password: values.password
+    })
+  });
+}
+
+async function register(email, pass){
+  return fetch(`${API_ROOT}/register`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email,
+      password: pass
+    })
+  });
+}
+
+async function confirmCode(code){
+  return fetch(`${API_ROOT}/register/confirm`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      code: code
     })
   });
 }
@@ -95,11 +122,11 @@ async function getAlerts(jwt, cid) {
   });
 }
 
-async function updateAlert(jwt, aid) {
+async function updateAlert(jwt, alert) {
 
-  console.log(aid)
+  console.log(alert)
 
-  return fetch(`${API_ROOT}/alert/` + aid, {
+  return fetch(`${API_ROOT}/alert/${alert.alertid}`, {
     method: "PUT",
     headers: {
       jwt: jwt,
@@ -107,9 +134,10 @@ async function updateAlert(jwt, aid) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      firstName: alert.firstName,
-      lastName: alert.lastName,
-      email: alert.email
+      name: alert.name,
+      query: alert.query,
+      contacts: alert.contacts,
+      clientId: alert.clientId
     })
   });
 }
@@ -159,7 +187,7 @@ async function updateContact(jwt, contact) {
 
   console.log(contact)
 
-  return fetch(`${API_ROOT}/contact/` + contact.id, {
+  return fetch(`${API_ROOT}/contact/` + contact.contactid, {
     method: "PUT",
     headers: {
       jwt: jwt,
@@ -219,5 +247,7 @@ export {
   addContact,
   deleteClient,
   deleteAlert,
-  deleteContact 
+  deleteContact,
+  register,
+  confirmCode 
 };

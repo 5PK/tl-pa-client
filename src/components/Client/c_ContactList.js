@@ -270,7 +270,7 @@ export default function ContactList(props) {
                 className={classes.button}
                 onClick={openDialog}
               >
-                DELETE ALERT
+                DELETE CLIENT
               </Button>
             </form>
           </div>
