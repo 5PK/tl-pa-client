@@ -195,7 +195,7 @@ export default function AlertList(props) {
     try {
 
       var promise = new Promise(async function(resolve, reject) {
-        const res = await updateAlert(appState.jwt, modal.alertid);
+        const res = await updateAlert(appState.jwt, modal);
         console.log(res);
         const resJson = await res.json();
         console.log(resJson);
