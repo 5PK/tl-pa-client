@@ -53,7 +53,7 @@ const useStyles = makeStyles(theme => ({
     clip: "rect(0 0 0 0)",
     height: 1,
     margin: -1,
-    overflow: "hidden",
+    overflow: "scroll",
     padding: 0,
     position: "absolute",
     top: 20,
@@ -200,7 +200,6 @@ function ClientContactList(appState) {
         style={{
           marginTop:"25px",
           maxHeight: "40vh",
-          overflow: "scroll",
           textAlign: "center"
         }}
       >

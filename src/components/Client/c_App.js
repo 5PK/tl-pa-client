@@ -26,7 +26,8 @@ import Divider from "@material-ui/core/Divider";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 import RefreshIcon from '@material-ui/icons/Refresh';
 
-
+// React Custom Scrollbars
+import { Scrollbars } from 'react-custom-scrollbars'
 
 // Prop Types Import
 import PropTypes from "prop-types";
@@ -262,14 +263,17 @@ const ClientApp = appState => {
     name: ""
   });
 
+  // Open Modal Function
   const openModal = () => {
     setModal({ ...modal, open: true });
   };
 
+  // Open Modal Function
   const closeModal = () => {
     setModal({ ...modal, open: false });
   };
 
+  // Close Snack Function
   const closeSnack = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -277,14 +281,17 @@ const ClientApp = appState => {
     setSnack({ ...snacks, open: false });
   };
 
+  // Handle Text input changes
   const handleInputChange = property => event => {
     setClient({ ...client, [property]: event.target.value });
   };
 
+  // Send the Snak to the User
   const sendSnack = response => {
     setSnack({ ...snacks, open: true, name: response.msg });
   };
 
+  // Handles Adding Clients
   const handleAddClient = async event => {
     event.preventDefault();
     console.log(appState);
@@ -297,12 +304,14 @@ const ClientApp = appState => {
     fetchClientList();
   };
 
+  // Handles Sorting
   const handleRequestSort = (event, property) => {
     const isDesc = table.orderBy === table.property && table.order === "desc";
     setTable({ ...table, v: isDesc ? "asc" : "desc" });
     setTable({ ...table, orderBy: property });
   };
 
+  // Fetch CLients
   const fetchClientList = async () => {
 
     //setClient({ ...client, loading: true });
@@ -319,6 +328,7 @@ const ClientApp = appState => {
     }
   };
 
+  // Refresh Clients
   const refreshClientList = () => {
     setClient({ ...client,loading: true });
     fetchClientList()
@@ -393,10 +403,9 @@ const ClientApp = appState => {
               rowCount={client.list.length > 0 ? client.list.length : 0}
             />
           </div>
-          <div
+          <Scrollbars
             style={{
-              maxHeight: "50vh",
-              overflow: "scroll",
+              height: "50vh",
               textAlign: "center"
             }}
           >
@@ -417,7 +426,7 @@ const ClientApp = appState => {
                 })}
               </List>
             )}
-          </div>
+          </Scrollbars>
         </div>
 
         <Modal

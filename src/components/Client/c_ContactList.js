@@ -1,5 +1,9 @@
 import React from "react";
-import { updateContact, getContacts, deleteContact } from "../../services/api-service";
+import {
+  updateContact,
+  getContacts,
+  deleteContact
+} from "../../services/api-service";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -25,9 +29,13 @@ import CloseIcon from "@material-ui/icons/Close";
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
 
+// React Custom Scrollbars
+import { Scrollbars } from "react-custom-scrollbars";
+
 const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%"
+    width: "100%",
+    height: "50vh"
   },
   heading: {
     fontSize: theme.typography.pxToRem(15),
@@ -48,9 +56,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ContactList(props) {
-
-  var appState = props.props.appState
-  var contacts = props.props.contacts
+  var appState = props.props.appState;
+  var contacts = props.props.contacts;
 
   const cid = window.location.pathname.replace("/Client/", "");
   const classes = useStyles();
@@ -79,7 +86,7 @@ export default function ContactList(props) {
   });
 
   const openModal = contact => {
-    console.log(contact)
+    console.log(contact);
     setModal({
       ...modal,
       open: true,
@@ -106,24 +113,23 @@ export default function ContactList(props) {
   };
 
   const openDialog = () => {
-    var contactid = modal.contactid
+    var contactid = modal.contactid;
     closeModal();
-    setDialog({ ...Dialog, open: true, contactDelId:contactid });
+    setDialog({ ...Dialog, open: true, contactDelId: contactid });
   };
 
   const closeDialog = () => {
     setDialog({ ...Dialog, open: false });
   };
 
-
   const handleInputChange = property => event => {
     setModal({ ...modal, [property]: event.target.value });
   };
 
   const handleEditContact = async event => {
-    console.log("hello")
-    console.log(modal)
-    console.log(appState)
+    console.log("hello");
+    console.log(modal);
+    console.log(appState);
 
     event.preventDefault();
     try {
@@ -148,7 +154,6 @@ export default function ContactList(props) {
   };
 
   const fetchContacts = async () => {
-
     try {
       const res = await getContacts(appState.jwt, cid);
       console.log(res);
@@ -163,7 +168,6 @@ export default function ContactList(props) {
   const handleDeleteContact = async event => {
     event.preventDefault();
     try {
-
       var promise = new Promise(async function(resolve, reject) {
         console.log(dialog.contactDelId);
         var res = await deleteContact(appState.jwt, dialog.contactDelId);
@@ -192,30 +196,37 @@ export default function ContactList(props) {
   };
 
   return (
-    <div className={classes.root}>
-      {contact.loading ? (
-        <Ring style={{ margin: "auto" }} />
-      ) : (
-        <List style={{ padding: 0, margin: "20px" }}>
-          {contact.list.map(cont => (
-            <ListItem style={{ padding: 0, margin: 1 }} key={cont.id}>
-              <Tooltip title="Edit Contact" placement="right">
-                <Button
-                  id={cont.id}
-                  onClick={e => openModal(cont)}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    justifyContent: "left"
-                  }}
-                >
-                  {cont.firstName} {cont.lastName}
-                </Button>
-              </Tooltip>
-            </ListItem>
-          ))}
-        </List>
-      )}
+    <div>
+      <Scrollbars
+        style={{
+          height: "40vh",
+          textAlign: "center"
+        }}
+      >
+        {contact.loading ? (
+          <Ring style={{ margin: "auto" }} />
+        ) : (
+          <List style={{ }}>
+            {contact.list.map(cont => (
+              <ListItem style={{ }} key={cont.id}>
+                <Tooltip title="Edit Contact" placement="right">
+                  <Button
+                    id={cont.id}
+                    onClick={e => openModal(cont)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      justifyContent: "left"
+                    }}
+                  >
+                    {cont.firstName} {cont.lastName}
+                  </Button>
+                </Tooltip>
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Scrollbars>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -277,7 +288,6 @@ export default function ContactList(props) {
         </Fade>
       </Modal>
 
-
       <Dialog
         open={dialog.open}
         onClose={closeDialog}
@@ -327,7 +337,6 @@ export default function ContactList(props) {
           </IconButton>
         ]}
       />
-
     </div>
   );
 }

@@ -473,7 +473,6 @@ function AlertApp(appState) {
       <div
         style={{
           maxHeight: "50vh",
-          overflow: "scroll",
           textAlign: "center"
         }}
       >
@@ -638,7 +637,6 @@ function AlertApp(appState) {
                 <div
                   style={{
                     maxHeight: "45vh",
-                    overflow: "scroll",
                     textAlign: "center"
                   }}
                 >
