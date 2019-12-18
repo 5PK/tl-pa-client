@@ -19,8 +19,7 @@ const AdapterLink = React.forwardRef((props, ref) => (
 ));
 
 const Landing = appState => {
-  console.log("isAuthenticated  " + appState.appState.isAuthenticated)
-
+  
   const styles = {
     card: {
       minWidth: "275px",

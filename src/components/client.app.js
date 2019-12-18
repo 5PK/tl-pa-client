@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect } from "react";
-import { getClients, addClient } from "../../services/api-service";
+import { getClients, addClient } from "../services/api-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -37,6 +37,9 @@ import { Ring } from "react-awesome-spinners";
 
 // React Router
 import { Link as RouterLink } from "react-router-dom";
+
+// Auth
+import auth from "../services/auth-service";
 
 const headCells = [
   {
@@ -235,11 +238,9 @@ function ListItemLink(props) {
   }
 }
 
-const ClientApp = appState => {
-  appState = appState.appState;
+const ClientApp = props => {
 
   const classes = useStyles();
-
 
   const [table, setTable] = React.useState({
     order: "desc",
@@ -294,10 +295,9 @@ const ClientApp = appState => {
   // Handles Adding Clients
   const handleAddClient = async event => {
     event.preventDefault();
-    console.log(appState);
-    const postResponse = await addClient(appState.jwt, client);
+
+    const postResponse = await addClient(auth.getJwt(), client);
     const response = await postResponse.json();
-    console.log(response);
     closeModal();
     sendSnack(response);
     setClient({ ...client, loading: true });
@@ -314,11 +314,8 @@ const ClientApp = appState => {
   // Fetch CLients
   const fetchClientList = async () => {
 
-    //setClient({ ...client, loading: true });
-
-    console.log(appState);
     try {
-      const res = await getClients(appState.jwt);
+      const res = await getClients(auth.getJwt());
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -335,7 +332,7 @@ const ClientApp = appState => {
   }
 
   useEffect(() => {
-    console.log("ClientList3.js | token: " + appState.jwt);
+    console.log("ClientList3.js | token: " + auth.getJwt());
     fetchClientList()
     console.log("ClientList3.js | clients: " + client.list);
   }, []);

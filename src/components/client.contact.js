@@ -1,6 +1,6 @@
 // App Imports
 import React, { useState, useEffect } from "react";
-import { getContacts, addContact } from "../../services/api-service";
+import { getContacts, addContact } from "../services/api-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -25,7 +25,7 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 
 // Custom Component Import
-import ContactList from "./c_ContactList";
+import ContactList from "./client.contactList";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";

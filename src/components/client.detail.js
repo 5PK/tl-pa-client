@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect } from "react";
-import { getClient, updateClient, deleteClient } from "../../services/api-service";
+import { getClient, updateClient, deleteClient } from "../services/api-service";
 
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
@@ -32,8 +32,8 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 // Custom Components
-import AlertApp from "./c_AlertApp";
-import ContactApp from "./c_ContactApp";
+import AlertApp from "./client.alert";
+import ContactApp from "./client.contact";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";

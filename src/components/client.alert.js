@@ -1,6 +1,6 @@
 // App Imports
 import React, { useEffect, useState } from "react";
-import { getAlerts, addAlert, getContacts } from "../../services/api-service";
+import { getAlerts, addAlert, getContacts } from "../services/api-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -35,7 +35,7 @@ import Select from "@material-ui/core/Select";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 
 // Custom Component Import
-import AlertList from "./c_AlertList";
+import AlertList from "./client.alertList";
 
 // Prop Types Import
 import PropTypes from "prop-types";

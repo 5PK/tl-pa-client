@@ -5,7 +5,7 @@ import {
   getAlerts,
   deleteAlert,
   getContacts
-} from "../../services/api-service";
+} from "../services/api-service";
 
 import Tooltip from "@material-ui/core/Tooltip";
 import ListItemIcon from "@material-ui/core/ListItemIcon";

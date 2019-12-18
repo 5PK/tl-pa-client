@@ -3,7 +3,7 @@ import {
   updateContact,
   getContacts,
   deleteContact
-} from "../../services/api-service";
+} from "../services/api-service";
 
 import { makeStyles } from "@material-ui/core/styles";
 

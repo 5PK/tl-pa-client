@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import SideNav from "./components/SideNav";
 
-import authenticationService from "../src/services/authentication-service";
+import auth from "./services/auth-service";
 
 import Container from "@material-ui/core/Container";
 import Home from "./containers/Home";
@@ -17,11 +17,30 @@ import Register from "./containers/Register";
 import Landing from "./containers/Landing";
 import NotFound from "./containers/NotFound";
 
-import ClientApp from "./components/Client/c_App";
-import AccountApp from "./components/Account/AccountApp";
-import AlertApp from "./components/Alert/AlertApp";
-import ClientDetail from "./components/Client/c_Detail";
+import ClientApp from "./components/client.app";
+//import AccountApp from "./components/Account/AccountApp";
+//import AlertApp from "./components/Alert/AlertApp";
+import ClientDetail from "./components/client.detail";
+import { ProtectedRoute } from "./protected.route";
 
+const App = () => {
+  return (
+    <div>
+      <Switch>
+        <Route exact path="/" component={Landing} />
+        <Route exact path="/Login" component={Login} />
+        <Route exact path="/Register" component={Register} />
+        <ProtectedRoute exact path="/Client" component={ClientApp} />
+        <ProtectedRoute exact path="/Client/:id" component={ClientDetail} />
+        <Route path="*" component={() => "404 NOT FOUND"} />
+      </Switch>
+    </div>
+  );
+};
+
+export default App;
+
+/*
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -35,31 +54,6 @@ export default class App extends React.Component {
     //this.userHasAuthenticated = this.userHasAuthenticated.bind(this);
 
   }
-
-  /*
-  componentWillMount() {
-
-    console.log("auth service", authenticationService.jwtValue);
-    console.log("auth service", authenticationService.jwt);
-
-    if (authenticationService.jwtValue === null) {
-      console.log(1)
-      this.setState = {
-        isAuthenticated: false,
-        isAuthenticating: true,
-        jwt: null
-      };
-    } else {
-      console.log(2)
-      this.setState = {
-        isAuthenticated: true,
-        isAuthenticating: false,
-        jwt:  authenticationService.jwtValue
-      };
-    }
-   
-  }
-  */
 
   userHasAuthenticated = (auth, token) => {
     console.log("app.js userHasAuth()" + auth + " " + token);
@@ -161,3 +155,5 @@ export default class App extends React.Component {
     }
   }
 }
+
+*/
