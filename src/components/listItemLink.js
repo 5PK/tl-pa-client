@@ -41,16 +41,13 @@ function ListItemLink(props) {
           <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
             {clientList.name}
           </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
             {clientList.bx3_alerts.length}
           </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-            {clientList.primaryContact}
-          </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={4}>
             {clientList.aso}
           </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
             {clientList.isVerified ? <CheckIcon /> : <ClearIcon />}
           </Grid>
         </ListItem>
@@ -70,19 +67,16 @@ function ListItemLink(props) {
           disabled
           value={clientList.id}
         >
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+          <Grid style={{ paddingLeft: 14, paddingRight: 1 }} item xs={3}>
             {clientList.name}
           </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={1}>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
             {clientList.bx3_alerts.length}
           </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
-            {clientList.primaryContact}
-          </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={4}>
             {clientList.aso}
           </Grid>
-          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={2}>
+          <Grid style={{ paddingLeft: 14, paddingRight: 14 }} item xs={3}>
             {clientList.isVerified ? <CheckIcon /> : <ClearIcon />}
           </Grid>
         </ListItem>

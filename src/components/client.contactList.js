@@ -29,8 +29,8 @@ import CloseIcon from "@material-ui/icons/Close";
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
 
-// React Custom Scrollbars
-import { Scrollbars } from "react-custom-scrollbars";
+// React Scrollbars Custom
+import RSC from "react-scrollbars-custom";
 
 // Auth
 import auth from "../services/auth-service";
@@ -201,7 +201,7 @@ const ContactList = props => {
 
   return (
     <Container>
-      <Scrollbars
+      <RSC
         style={{
           height: "40vh",
           textAlign: "center"
@@ -230,7 +230,7 @@ const ContactList = props => {
             ))}
           </List>
         )}
-      </Scrollbars>
+      </RSC>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"

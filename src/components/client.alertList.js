@@ -44,8 +44,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-// React Custom Scrollbars
-import { Scrollbars } from "react-custom-scrollbars";
+// React Scrollbars Custom
+import RSC from "react-scrollbars-custom";
 
 // Auth
 import auth from "../services/auth-service";
@@ -342,7 +342,7 @@ const AlertList = props => {
 
   return (
     <div className={classes.root}>
-      <Scrollbars style={{height: "45vh",}}>
+      <RSC style={{height: "45vh",}}>
         <List style={{ padding: 0, margin: "20px" }}>
           {alert.list.map(alrt => (
             <Tooltip title="Edit Alert" placement="left" key={alrt.id}>
@@ -362,7 +362,7 @@ const AlertList = props => {
             </Tooltip>
           ))}
         </List>
-      </Scrollbars>
+      </RSC>
 
       <Modal
         className={classes.modal}
@@ -513,7 +513,7 @@ const AlertList = props => {
                 >
                   Condition List
                 </Typography>
-                <Scrollbars
+                <RSC
                   style={{
                     height: "45vh",
                     textAlign: "center"
@@ -564,7 +564,7 @@ const AlertList = props => {
                         </ListItem>
                       ))}
                   </List>
-                </Scrollbars>
+                </RSC>
               </Grid>
             </Grid>
 

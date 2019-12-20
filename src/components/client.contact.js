@@ -56,7 +56,6 @@ const useStyles = makeStyles(theme => ({
     clip: "rect(0 0 0 0)",
     height: 1,
     margin: -1,
-    overflow: "scroll",
     padding: 0,
     position: "absolute",
     top: 20,

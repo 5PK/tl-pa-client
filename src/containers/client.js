@@ -27,8 +27,8 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Tooltip from "@material-ui/core/Tooltip";
 
-// React Custom Scrollbars
-import { Scrollbars } from "react-custom-scrollbars";
+// React Scrollbars Custom
+import RSC from "react-scrollbars-custom";
 
 // Prop Types Import
 import PropTypes from "prop-types";
@@ -53,36 +53,25 @@ const headCells = [
     id: "name",
     numeric: false,
     label: "Client Name",
-    className: "headerName",
-    size: 3
+    width: "80%"
   },
   {
     id: "alert",
     numeric: true,
     label: "Open Alerts",
-    className: "headerAlert",
-    size: 1
-  },
-  {
-    id: "primaryContact",
-    numeric: false,
-    label: "Primary Contact",
-    className: "headerPrimaryContact",
-    size: 3
+    width: "50%"
   },
   {
     id: "aso",
     numeric: false,
     label: "ASO",
-    className: "headerAso",
-    size: 3
+    width: "35%"
   },
   {
     id: "isVerified",
     numeric: true,
     label: "Verified",
-    className: "headerIsVerified",
-    size: 2
+    size: "15%"
   }
 ];
 
@@ -176,7 +165,6 @@ const Client = props => {
   const [client, setClient] = React.useState({
     name: "",
     aso: "",
-    primaryContact: "",
     list: [],
     loading: true
   });
@@ -329,7 +317,7 @@ const Client = props => {
                 rowCount={client.list.length > 0 ? client.list.length : 0}
               />
             </div>
-            <Scrollbars
+            <RSC
               style={{
                 height: "50vh",
                 textAlign: "center"
@@ -352,7 +340,7 @@ const Client = props => {
                   })}
                 </List>
               )}
-            </Scrollbars>
+            </RSC>
           </div>
 
           <Modal
@@ -385,14 +373,6 @@ const Client = props => {
                     margin="normal"
                     value={client.aso}
                     onChange={handleInputChange("aso")}
-                  />
-                  <br />
-                  <TextField
-                    label="Primary Contact"
-                    className={classes.textField}
-                    margin="normal"
-                    value={client.primaryContact}
-                    onChange={handleInputChange("primaryContact")}
                   />
                   <br />
                   <Button className={classes.button} type="submit">
