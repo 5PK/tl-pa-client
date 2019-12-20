@@ -1,7 +1,6 @@
 // App imports
 import React from "react";
-import authenticationService from "../services/authentication-service"
-import {login} from "../services/api-service"
+import { login } from "../services/api-service";
 
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -9,12 +8,9 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 
-import { navigate } from "hookrouter";
+import auth from "../services/auth-service";
 
-const Login = appState => {
-  //let history = useHistory()
-  // for some reason object ref is doubling up
-  appState = appState.appState;
+const Login = props => {
   const [user, setUser] = React.useState({
     email: "",
     password: ""
@@ -36,7 +32,7 @@ const Login = appState => {
     card: {
       minWidth: "275px",
       height: "60%",
-      borderRadius: "0",
+      borderRadius: "25px",
       borderRight: "1px solid lightgrey",
       margin: "0",
       position: "absolute",
@@ -65,42 +61,19 @@ const Login = appState => {
 
   const handleSubmit = async event => {
     event.preventDefault();
-    /*
-    console.log("Attempt Login");
-    console.log(user);
-    event.preventDefault();
-
-    var auth = await authenticationService.auth_login(user)
-
-    if(auth === true){
-      console.log('here is the true true')
-      console.log(appState.appState)
-      appState.appState.userHasAuthenticated(true, authenticationService.jwtValue);
-    }
-
-    */
 
     const loginResponse = await login(user);
-    console.log(loginResponse)
     const response = await loginResponse.json();
 
-    console.log(response);
     if (response.statusCode === 200) {
-      console.log("User Login Success");
-      console.log(
-        "Login.js | 1 IsAuthenticated? -> " + appState.isAuthenticated
-      );
-
-      appState.userHasAuthenticated(true, response.data.token);
-
- 
-
+      auth.setJwt(response.data.token);
+      auth.login(() => {
+        props.history.push("/Client");
+      });
     } else {
       alert("Login Failed!");
     }
-
-
-  }
+  };
 
   const handleInputChange = name => event => {
     setUser({ ...user, [name]: event.target.value });

@@ -1,11 +1,11 @@
-import React, { useEffect }  from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   updateAlert,
   getAlerts,
   deleteAlert,
   getContacts
-} from "../../services/api-service";
+} from "../services/api-service";
 
 import Tooltip from "@material-ui/core/Tooltip";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -44,6 +44,12 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
+// React Scrollbars Custom
+import RSC from "react-scrollbars-custom";
+
+// Auth
+import auth from "../services/auth-service";
+
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%"
@@ -74,8 +80,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function AlertList(props) {
-  var appState = props.props.appState;
+const AlertList = props => {
   var alerts = props.props.alerts;
 
   const cid = window.location.pathname.replace("/Client/", "");
@@ -122,8 +127,8 @@ export default function AlertList(props) {
   const openModal = alert => {
     console.log(alert);
 
-    var query = JSON.parse(alert.query)
-    var contacts = JSON.parse("{\"arr\":" + alert.contacts + "}")
+    var query = JSON.parse(alert.query);
+    var contacts = JSON.parse('{"arr":' + alert.contacts + "}");
 
     setPersonName(contacts.arr);
 
@@ -142,9 +147,9 @@ export default function AlertList(props) {
   };
 
   const openDialog = () => {
-    var alertid = modal.alertid
+    var alertid = modal.alertid;
     closeModal();
-    setDialog({ ...Dialog, open: true, alertDelId:alertid });
+    setDialog({ ...Dialog, open: true, alertDelId: alertid });
   };
 
   const closeDialog = () => {
@@ -193,9 +198,8 @@ export default function AlertList(props) {
   const handleEditAlert = async event => {
     event.preventDefault();
     try {
-
       var promise = new Promise(async function(resolve, reject) {
-        const res = await updateAlert(appState.jwt, modal);
+        const res = await updateAlert(auth.getJwt(), modal);
         console.log(res);
         const resJson = await res.json();
         console.log(resJson);
@@ -224,7 +228,7 @@ export default function AlertList(props) {
 
   const fetchAlerts = async () => {
     try {
-      const res = await getAlerts(appState.jwt, cid);
+      const res = await getAlerts(auth.getJwt(), cid);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -282,10 +286,9 @@ export default function AlertList(props) {
   const handleDeleteAlert = async event => {
     event.preventDefault();
     try {
-
       var promise = new Promise(async function(resolve, reject) {
         console.log(dialog.alertDelId);
-        var res = await deleteAlert(appState.jwt, dialog.alertDelId);
+        var res = await deleteAlert(auth.getJwt(), dialog.alertDelId);
         console.log(res);
         var resJson = await res.json();
         console.log(resJson);
@@ -311,9 +314,8 @@ export default function AlertList(props) {
   };
 
   const fetchContacts = async () => {
-
     try {
-      const res = await getContacts(appState.jwt, cid);
+      const res = await getContacts(auth.getJwt(), cid);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -333,35 +335,34 @@ export default function AlertList(props) {
     inventor,
     assignee
   } = modal;
-  
 
   useEffect(() => {
-    console.log(appState);
     fetchContacts();
   }, []);
 
   return (
     <div className={classes.root}>
-      <List style={{ padding: 0, margin: "20px" }}>
-        {alert.list.map(alrt => (
-          
-          <Tooltip title="Edit Alert" placement="left" key={alrt.id}>
-            <ListItem
-              id={alrt.id}
-              button
-              style={{ padding: 10, margin: 1, borderRadius: "8px" }}
-              onClick={e => openModal(alrt)}
-            >
-              <ListItemIcon>
-                {alrt.isActive ? <Notifications /> : <NotificationsOff />}
-              </ListItemIcon>
-              <ListItemText primary={alrt.name} />
-              <ListItemText primary={getQueryLength(alrt.query)} />
-              <ListItemText primary={getContactLength(alrt.contacts)} />
-            </ListItem>
-          </Tooltip>
-        ))}
-      </List>
+      <RSC style={{height: "45vh",}}>
+        <List style={{ padding: 0, margin: "20px" }}>
+          {alert.list.map(alrt => (
+            <Tooltip title="Edit Alert" placement="left" key={alrt.id}>
+              <ListItem
+                id={alrt.id}
+                button
+                style={{ padding: 10, margin: 1, borderRadius: "8px" }}
+                onClick={e => openModal(alrt)}
+              >
+                <ListItemIcon>
+                  {alrt.isActive ? <Notifications /> : <NotificationsOff />}
+                </ListItemIcon>
+                <ListItemText primary={alrt.name} />
+                <ListItemText primary={getQueryLength(alrt.query)} />
+                <ListItemText primary={getContactLength(alrt.contacts)} />
+              </ListItem>
+            </Tooltip>
+          ))}
+        </List>
+      </RSC>
 
       <Modal
         className={classes.modal}
@@ -384,14 +385,11 @@ export default function AlertList(props) {
               margin="normal"
               onChange={handleTextChange("name")}
               style={{ width: "80%" }}
-        
               defaultValue={modal.name}
-
-
             />
             <br />
             <Grid container spacing={3} styles={{ height: "100%" }}>
-              <Grid item xs={6} >
+              <Grid item xs={6}>
                 <Typography
                   variant="h4"
                   component="h2"
@@ -507,7 +505,7 @@ export default function AlertList(props) {
                   </Button>
                 </FormControl>
               </Grid>
-              <Grid item xs={6} >
+              <Grid item xs={6}>
                 <Typography
                   variant="h4"
                   component="h2"
@@ -515,10 +513,9 @@ export default function AlertList(props) {
                 >
                   Condition List
                 </Typography>
-                <div
+                <RSC
                   style={{
-                    maxHeight: "45vh",
-                    overflow: "scroll",
+                    height: "45vh",
                     textAlign: "center"
                   }}
                 >
@@ -567,7 +564,7 @@ export default function AlertList(props) {
                         </ListItem>
                       ))}
                   </List>
-                </div>
+                </RSC>
               </Grid>
             </Grid>
 
@@ -667,3 +664,5 @@ export default function AlertList(props) {
     </div>
   );
 }
+
+export default AlertList

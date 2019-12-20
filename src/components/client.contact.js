@@ -1,6 +1,6 @@
 // App Imports
 import React, { useState, useEffect } from "react";
-import { getContacts, addContact } from "../../services/api-service";
+import { getContacts, addContact } from "../services/api-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
@@ -25,10 +25,13 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 
 // Custom Component Import
-import ContactList from "./c_ContactList";
+import ContactList from "./client.contactList";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
+
+// Auth
+import auth from "../services/auth-service";
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -53,7 +56,6 @@ const useStyles = makeStyles(theme => ({
     clip: "rect(0 0 0 0)",
     height: 1,
     margin: -1,
-    overflow: "hidden",
     padding: 0,
     position: "absolute",
     top: 20,
@@ -82,12 +84,10 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function ClientContactList(appState) {
+const ClientContactList = () => {
   const classes = useStyles();
 
   const clientId = window.location.pathname.replace("/Client/", "");
-
-  appState = appState.appState;
 
   const [snacks, setSnack] = React.useState({
     open: false,
@@ -106,7 +106,7 @@ function ClientContactList(appState) {
   });
 
   useEffect(() => {
-    console.log(appState);
+   
     fetchClientContacts();
   }, []);
 
@@ -125,7 +125,7 @@ function ClientContactList(appState) {
     console.log("clientId: " + clientId);
 
     try {
-      const res = await getContacts(appState.jwt, clientId);
+      const res = await getContacts(auth.getJwt(), clientId);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -138,11 +138,11 @@ function ClientContactList(appState) {
   const handleAddContact = async event => {
     event.preventDefault();
     try {
-      console.log(appState);
+
       console.log(contact.firstName);
       console.log(clientId);
 
-      const res = await addContact(appState.jwt, contact, clientId);
+      const res = await addContact(auth.getJwt(), contact, clientId);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -200,14 +200,13 @@ function ClientContactList(appState) {
         style={{
           marginTop:"25px",
           maxHeight: "40vh",
-          overflow: "scroll",
           textAlign: "center"
         }}
       >
         {contact.loading ? (
           <Ring style={{ margin: "auto" }} />
         ) : (
-          <ContactList props={{ contacts: contact.list, appState: appState }} />
+          <ContactList props={{ contacts: contact.list}} />
         )}
       </div>
       <Modal
