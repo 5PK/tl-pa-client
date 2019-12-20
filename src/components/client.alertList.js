@@ -47,6 +47,9 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 // React Custom Scrollbars
 import { Scrollbars } from "react-custom-scrollbars";
 
+// Auth
+import auth from "../services/auth-service";
+
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%"
@@ -77,8 +80,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function AlertList(props) {
-  var appState = props.props.appState;
+const AlertList = props => {
   var alerts = props.props.alerts;
 
   const cid = window.location.pathname.replace("/Client/", "");
@@ -197,7 +199,7 @@ export default function AlertList(props) {
     event.preventDefault();
     try {
       var promise = new Promise(async function(resolve, reject) {
-        const res = await updateAlert(appState.jwt, modal);
+        const res = await updateAlert(auth.getJwt(), modal);
         console.log(res);
         const resJson = await res.json();
         console.log(resJson);
@@ -226,7 +228,7 @@ export default function AlertList(props) {
 
   const fetchAlerts = async () => {
     try {
-      const res = await getAlerts(appState.jwt, cid);
+      const res = await getAlerts(auth.getJwt(), cid);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -286,7 +288,7 @@ export default function AlertList(props) {
     try {
       var promise = new Promise(async function(resolve, reject) {
         console.log(dialog.alertDelId);
-        var res = await deleteAlert(appState.jwt, dialog.alertDelId);
+        var res = await deleteAlert(auth.getJwt(), dialog.alertDelId);
         console.log(res);
         var resJson = await res.json();
         console.log(resJson);
@@ -313,7 +315,7 @@ export default function AlertList(props) {
 
   const fetchContacts = async () => {
     try {
-      const res = await getContacts(appState.jwt, cid);
+      const res = await getContacts(auth.getJwt(), cid);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -335,7 +337,6 @@ export default function AlertList(props) {
   } = modal;
 
   useEffect(() => {
-    console.log(appState);
     fetchContacts();
   }, []);
 
@@ -663,3 +664,5 @@ export default function AlertList(props) {
     </div>
   );
 }
+
+export default AlertList

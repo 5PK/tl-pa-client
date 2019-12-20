@@ -1,6 +1,5 @@
 // App imports
 import React from "react";
-import authenticationService from "../services/auth-service";
 import { login } from "../services/api-service";
 
 import TextField from "@material-ui/core/TextField";
@@ -33,7 +32,7 @@ const Login = props => {
     card: {
       minWidth: "275px",
       height: "60%",
-      borderRadius: "0",
+      borderRadius: "25px",
       borderRight: "1px solid lightgrey",
       margin: "0",
       position: "absolute",
@@ -69,7 +68,7 @@ const Login = props => {
     if (response.statusCode === 200) {
       auth.setJwt(response.data.token);
       auth.login(() => {
-        props.history.push("/client");
+        props.history.push("/Client");
       });
     } else {
       alert("Login Failed!");

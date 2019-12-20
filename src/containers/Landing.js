@@ -24,7 +24,7 @@ const Landing = appState => {
     card: {
       minWidth: "275px",
       height: "60%",
-      borderRadius: "0",
+      borderRadius: "25px",
       borderRight: "1px solid lightgrey",
       margin: "0",
       position: "absolute",

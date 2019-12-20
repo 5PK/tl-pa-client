@@ -32,6 +32,10 @@ import { Ring } from "react-awesome-spinners";
 // React Custom Scrollbars
 import { Scrollbars } from "react-custom-scrollbars";
 
+// Auth
+import auth from "../services/auth-service";
+import { Container } from "@material-ui/core";
+
 const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
@@ -55,8 +59,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ContactList(props) {
-  var appState = props.props.appState;
+const ContactList = props => {
+ 
   var contacts = props.props.contacts;
 
   const cid = window.location.pathname.replace("/Client/", "");
@@ -129,11 +133,11 @@ export default function ContactList(props) {
   const handleEditContact = async event => {
     console.log("hello");
     console.log(modal);
-    console.log(appState);
+
 
     event.preventDefault();
     try {
-      const res = await updateContact(appState.jwt, modal);
+      const res = await updateContact(auth.getJwt(), modal);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -155,7 +159,7 @@ export default function ContactList(props) {
 
   const fetchContacts = async () => {
     try {
-      const res = await getContacts(appState.jwt, cid);
+      const res = await getContacts(auth.getJwt(), cid);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -170,7 +174,7 @@ export default function ContactList(props) {
     try {
       var promise = new Promise(async function(resolve, reject) {
         console.log(dialog.contactDelId);
-        var res = await deleteContact(appState.jwt, dialog.contactDelId);
+        var res = await deleteContact(auth.getJwt(), dialog.contactDelId);
         console.log(res);
         var resJson = await res.json();
         console.log(resJson);
@@ -196,7 +200,7 @@ export default function ContactList(props) {
   };
 
   return (
-    <div>
+    <Container>
       <Scrollbars
         style={{
           height: "40vh",
@@ -206,7 +210,7 @@ export default function ContactList(props) {
         {contact.loading ? (
           <Ring style={{ margin: "auto" }} />
         ) : (
-          <List style={{ }}>
+          <List>
             {contact.list.map(cont => (
               <ListItem style={{ }} key={cont.id}>
                 <Tooltip title="Edit Contact" placement="right">
@@ -337,6 +341,9 @@ export default function ContactList(props) {
           </IconButton>
         ]}
       />
-    </div>
+    </Container>
   );
 }
+
+
+export default ContactList

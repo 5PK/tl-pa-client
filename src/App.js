@@ -6,21 +6,15 @@ import {
   Switch,
   Redirect
 } from "react-router-dom";
-import SideNav from "./components/SideNav";
 
-import auth from "./services/auth-service";
 
-import Container from "@material-ui/core/Container";
-import Home from "./containers/Home";
-import Login from "./containers/Login";
-import Register from "./containers/Register";
-import Landing from "./containers/Landing";
-import NotFound from "./containers/NotFound";
+import Login from "./containers/login";
+import Register from "./containers/register";
+import Landing from "./containers/landing";
 
-import ClientApp from "./components/client.app";
-//import AccountApp from "./components/Account/AccountApp";
-//import AlertApp from "./components/Alert/AlertApp";
-import ClientDetail from "./components/client.detail";
+import Client from "./containers/client";
+
+import ClientDetail from "./containers/client.detail";
 import { ProtectedRoute } from "./protected.route";
 
 const App = () => {
@@ -30,7 +24,7 @@ const App = () => {
         <Route exact path="/" component={Landing} />
         <Route exact path="/Login" component={Login} />
         <Route exact path="/Register" component={Register} />
-        <ProtectedRoute exact path="/Client" component={ClientApp} />
+        <ProtectedRoute exact path="/Client" component={Client} />
         <ProtectedRoute exact path="/Client/:id" component={ClientDetail} />
         <Route path="*" component={() => "404 NOT FOUND"} />
       </Switch>
@@ -39,121 +33,3 @@ const App = () => {
 };
 
 export default App;
-
-/*
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isAuthenticated: false,
-      isAuthenticating: true,
-      jwt: null
-    }
-
-    //this.userHasAuthenticated = this.userHasAuthenticated.bind(this);
-
-  }
-
-  userHasAuthenticated = (auth, token) => {
-    console.log("app.js userHasAuth()" + auth + " " + token);
-    
-    this.setState({ isAuthenticated: auth, jwt: token });
-  };
-
-  userHasNotAuthenticated = () => {
-    console.log("user NOT userHasNotAuthenticated");
-
-    this.setState({ isAuthenticated: false, jwt: null });
-  };
-
-
-  render() {
-
-    console.log(this.state.jwt)
-   
-
-    const childProps = {
-      isAuthenticated: this.state.isAuthenticated,
-      jwt: this.state.jwt,
-      userHasAuthenticated: this.userHasAuthenticated,
-      userHasNotAuthenticated: this.userHasNotAuthenticated,
-    };
-
-
-    const appStyle = {
-      marginLeft: 230,
-      marginTop: 120,
-      width: "85%",
-      height: "85%"
-    };
-
-    console.log("App.js isAuthenticated: " + childProps.isAuthenticated);
-
-    if (!this.state.isAuthenticated) {
-      return (
-        <Router>
-          <Route path="/Client" render={() => <Redirect to="/Landing" appState={childProps}/>} />
-          <Route
-            path="/"
-            render={() => <Redirect to="/Landing" appState={childProps} />}
-          />
-          <Route
-            path="/Landing"
-            render={() => <Landing appState={childProps} />}
-          />
-          <Route path="/Login" render={() => <Login appState={childProps} />} />
-          <Route
-            path="/Register"
-            render={() => <Register appState={childProps} />}
-          />
-        </Router>
-      );
-    } else {
-      return (
-        <Router>
-          <SideNav appState={childProps}/>
-          <Container style={appStyle}>
-            <Switch>
-              <Route exact path="/" render={() => <Redirect to="/Client" />} />
-              <Route path="/Login" render={() => <Redirect to="/Client" />} />
-              <Route
-                exact
-                path="/Client"
-                render={() => (
-                  <ClientApp style={{ height: "100%" }} appState={childProps} />
-                )}
-              />
-              <Route
-                path="/Client/:id"
-                render={() => (
-                  <ClientDetail
-                    style={{ height: "100%" }}
-                    appState={childProps}
-                  />
-                )}
-              />
-              <Route
-                path="/Alert"
-                render={() => (
-                  <AlertApp style={{ height: "100%" }} appState={childProps} />
-                )}
-              />
-              <Route
-                path="/Account"
-                render={() => (
-                  <AccountApp
-                    style={{ height: "100%" }}
-                    appState={childProps}
-                  />
-                )}
-              />
-            </Switch>
-          </Container>
-        </Router>
-      );
-    }
-  }
-}
-
-*/

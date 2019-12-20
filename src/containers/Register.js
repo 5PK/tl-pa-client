@@ -28,8 +28,8 @@ const styles = {
   card: {
     minWidth: '275px',
     height:'80%',
-    borderRadius:'0',
     transform: 'translateX( 0px)',
+    borderRadius: "25px",
     borderRight: '1px solid lightgrey',
     margin: '0',
     position: 'absolute',

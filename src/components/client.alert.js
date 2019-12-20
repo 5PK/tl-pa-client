@@ -44,6 +44,9 @@ import PropTypes from "prop-types";
 import { Ring } from "react-awesome-spinners";
 import { Divider } from "@material-ui/core";
 
+// Auth
+import auth from "../services/auth-service";
+
 const useStyles = makeStyles(theme => ({
   modal: {
     display: "flex",
@@ -201,10 +204,9 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired
 };
 
-function AlertApp(appState) {
+const AlertApp = () => {
   const classes = useStyles();
   const cid = window.location.pathname.replace("/Client/", "");
-  appState = appState.appState;
 
   const [table, setTable] = React.useState({
     order:"desc",
@@ -295,7 +297,7 @@ function AlertApp(appState) {
     console.log("clientId: " + cid);
 
     try {
-      const res = await getAlerts(appState.jwt, cid);
+      const res = await getAlerts(auth.getJwt(), cid);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -307,7 +309,7 @@ function AlertApp(appState) {
 
   const fetchContacts = async () => {
     try {
-      const res = await getContacts(appState.jwt, cid);
+      const res = await getContacts(auth.getJwt(), cid);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -337,7 +339,7 @@ function AlertApp(appState) {
     };
 
     closeModal();
-    const postResponse = await addAlert(appState.jwt, alert);
+    const postResponse = await addAlert(auth.getJwt(), alert);
     const response = await postResponse.json();
     console.log(response);
     sendSnack(response);
@@ -481,7 +483,7 @@ function AlertApp(appState) {
         ) : (
           <AlertList
             alerts={alert.list}
-            props={{ alerts: alert.list, appState: appState, contacts: contacts.list}}
+            props={{ alerts: alert.list, contacts: contacts.list}}
           />
         )}
       </div>

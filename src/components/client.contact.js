@@ -30,6 +30,9 @@ import ContactList from "./client.contactList";
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
 
+// Auth
+import auth from "../services/auth-service";
+
 const useStyles = makeStyles(theme => ({
   card: {
     minWidth: 275
@@ -82,12 +85,10 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function ClientContactList(appState) {
+const ClientContactList = () => {
   const classes = useStyles();
 
   const clientId = window.location.pathname.replace("/Client/", "");
-
-  appState = appState.appState;
 
   const [snacks, setSnack] = React.useState({
     open: false,
@@ -106,7 +107,7 @@ function ClientContactList(appState) {
   });
 
   useEffect(() => {
-    console.log(appState);
+   
     fetchClientContacts();
   }, []);
 
@@ -125,7 +126,7 @@ function ClientContactList(appState) {
     console.log("clientId: " + clientId);
 
     try {
-      const res = await getContacts(appState.jwt, clientId);
+      const res = await getContacts(auth.getJwt(), clientId);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -138,11 +139,11 @@ function ClientContactList(appState) {
   const handleAddContact = async event => {
     event.preventDefault();
     try {
-      console.log(appState);
+
       console.log(contact.firstName);
       console.log(clientId);
 
-      const res = await addContact(appState.jwt, contact, clientId);
+      const res = await addContact(auth.getJwt(), contact, clientId);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
@@ -206,7 +207,7 @@ function ClientContactList(appState) {
         {contact.loading ? (
           <Ring style={{ margin: "auto" }} />
         ) : (
-          <ContactList props={{ contacts: contact.list, appState: appState }} />
+          <ContactList props={{ contacts: contact.list}} />
         )}
       </div>
       <Modal
