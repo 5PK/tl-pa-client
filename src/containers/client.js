@@ -2,6 +2,9 @@
 import React, { useEffect } from "react";
 import { getClients, addClient } from "../services/api-service";
 
+// Helper
+import { validateEmail, validateEmpty } from "../services/validation-service";
+
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
@@ -27,6 +30,12 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Tooltip from "@material-ui/core/Tooltip";
 
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions";
+
 // React Scrollbars Custom
 import RSC from "react-scrollbars-custom";
 
@@ -35,9 +44,6 @@ import PropTypes from "prop-types";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
-
-// React Router
-import { Link as RouterLink, BrowserRouter as Router } from "react-router-dom";
 
 // Auth
 import auth from "../services/auth-service";
@@ -83,10 +89,12 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     backgroundColor: theme.palette.background.paper,
-    border: "1px solid #000",
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
-    outline: 0
+    outline: 0,
+    height: "50%",
+    width: "50%",
+    margin: "auto"
   },
   button: {
     textAlign: "center",
@@ -177,6 +185,12 @@ const Client = props => {
     name: ""
   });
 
+  const [validForm, setValidForm] = React.useState({
+    email: false,
+    name: false,
+    valid: false
+  });
+
   // Open Modal Function
   const openModal = () => {
     setModal({ ...modal, open: true });
@@ -197,7 +211,31 @@ const Client = props => {
 
   // Handle Text input changes
   const handleInputChange = property => event => {
-    setClient({ ...client, [property]: event.target.value });
+    console.log(property);
+
+    if (property == "aso") {
+      if (validateEmail(event.target.value)) {
+        setValidForm({ ...validForm, email: true });
+        setClient({ ...client, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, email: false });
+        setClient({ ...client, [property]: event.target.value });
+      }
+    }
+
+    if (property == "name") {
+      if (validateEmpty(event.target.value)) {
+        setValidForm({ ...validForm, name: true });
+        setClient({ ...client, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, name: false });
+        setClient({ ...client, [property]: event.target.value });
+      }
+    }
+
+    if (validForm.email == true && validForm.name == true) {
+      setValidForm({ ...validForm, valid: true });
+    }
   };
 
   // Send the Snak to the User
@@ -289,15 +327,15 @@ const Client = props => {
                   }}
                 >
                   <Tooltip title="Refresh List" placement="right">
-                  <Fab
-                    size="small"
-                    color="primary"
-                    aria-label="add"
-                    className={classes.margin}
-                    onClick={refreshClientList}
-                  >
-                    <RefreshIcon />
-                  </Fab>
+                    <Fab
+                      size="small"
+                      color="primary"
+                      aria-label="add"
+                      className={classes.margin}
+                      onClick={refreshClientList}
+                    >
+                      <RefreshIcon />
+                    </Fab>
                   </Tooltip>
                 </div>
               </Grid>
@@ -342,46 +380,50 @@ const Client = props => {
               )}
             </RSC>
           </div>
-
-          <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            className={classes.modal}
+          <Dialog
             open={modal.open}
             onClose={closeModal}
-            closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: 500
-            }}
+            aria-labelledby="form-dialog-title"
           >
-            <Fade in={modal.open}>
-              <div className={classes.paper}>
-                <h2 id="transition-modal-title">Add Client</h2>
-                <form onSubmit={handleAddClient}>
-                  <TextField
-                    label="Company Name"
-                    className={classes.textField}
-                    margin="normal"
-                    value={client.name}
-                    onChange={handleInputChange("name")}
-                  />
-                  <br />
-                  <TextField
-                    label="ASO Email"
-                    className={classes.textField}
-                    margin="normal"
-                    value={client.aso}
-                    onChange={handleInputChange("aso")}
-                  />
-                  <br />
-                  <Button className={classes.button} type="submit">
-                    Submit
-                  </Button>
-                </form>
-              </div>
-            </Fade>
-          </Modal>
+            <DialogTitle id="form-dialog-title">Add Client</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                To add a client, enter in the company name as well as the ASO
+                (Authorized Signing Officer) email. The ASO must confirm your
+                relationship before you can begin creating automated alerts.
+              </DialogContentText>
+
+              <TextField
+                label="Company Name"
+                className={classes.textField}
+                margin="normal"
+                value={client.name}
+                onChange={handleInputChange("name")}
+                error={!validForm.name}
+              />
+              <br />
+              <TextField
+                label="ASO Email"
+                className={classes.textField}
+                margin="normal"
+                value={client.aso}
+                onChange={handleInputChange("aso")}
+                error={!validForm.email}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={closeModal} color="secondary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddClient}
+                color="primary"
+                disabled={!validForm.valid}
+              >
+                Add Client
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Paper>
 
         <Snackbar

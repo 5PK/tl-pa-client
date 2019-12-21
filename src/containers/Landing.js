@@ -1,16 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
-
 
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
-import Container from "@material-ui/core/Container"
+import Container from "@material-ui/core/Container";
 
-
+import { Link } from "react-router-dom";
 
 // The usage of React.forwardRef will no longer be required for react-router-dom v6.
 // see https://github.com/ReactTraining/react-router/issues/6056
@@ -18,8 +15,7 @@ const AdapterLink = React.forwardRef((props, ref) => (
   <Link innerRef={ref} {...props} />
 ));
 
-const Landing = appState => {
-  
+const Landing = () => {
   const styles = {
     card: {
       minWidth: "275px",
@@ -49,8 +45,7 @@ const Landing = appState => {
     button: {
       textAlign: "center",
       height: "15%",
-      width: "50%",
-      borderRadius: "0"
+      width: "50%"
     },
     buttonWrapper: {
       height: "100%",
@@ -59,44 +54,48 @@ const Landing = appState => {
       alignItems: "center",
       justifyContent: "center",
       float: "left"
-    },
+    }
   };
 
   return (
-    <Container style={{ paddingTop: '2rem' }}>
-        <Card style={styles.card}>
-          <CardContent style={styles.cardContent}>
-            <Typography variant="h2" style={styles.title}>
-              Patent Alert
-            </Typography>
-            <Typography variant="overline" display="block" gutterBottom>
-              A Client Management and Patent Alert software solution.
-            </Typography>
-          </CardContent>
-          <CardActions>
-            <div style={styles.buttonWrapper}>
-              <Button
-                style={styles.button}
-                variant="outlined"
-                to="/Login"
-                component={AdapterLink}
-              >
-                Login
-              </Button>
-            </div>
-            <div style={styles.buttonWrapper}>
-              <Button
-                style={styles.button}
-                variant="outlined"
-                to="/Register"
-                component={AdapterLink}
-              >
-                Register
-              </Button>
-            </div>
-          </CardActions>
-        </Card>   
-   </Container>
+    <Container style={{ paddingTop: "2rem" }}>
+      <Card style={styles.card}>
+        <div style={{ height: "12%", backgroundColor: "#3f51b5" }} />
+
+        <CardContent style={styles.cardContent}>
+          <Typography variant="h2" style={styles.title}>
+            Patent Alert
+          </Typography>
+          <Typography variant="overline" display="block" gutterBottom>
+            A Client Management and Patent Alert software solution.
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <div style={styles.buttonWrapper}>
+            <Button
+              style={styles.button}
+              variant="contained"
+              to="/Login"
+              component={AdapterLink}
+              disableElevation
+            >
+              Login
+            </Button>
+          </div>
+          <div style={styles.buttonWrapper}>
+            <Button
+              style={styles.button}
+              variant="contained"
+              to="/Register"
+              component={AdapterLink}
+              disableElevation
+            >
+              Register
+            </Button>
+          </div>
+        </CardActions>
+      </Card>
+    </Container>
   );
 };
 

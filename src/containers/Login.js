@@ -43,15 +43,13 @@ const Login = props => {
       width: "50%"
     },
     title: {
-      marginBottom: "10%",
       marginTop: "15%"
     },
     button: {
       textAlign: "center",
       height: "15%",
       width: "25%",
-      borderRadius: "0",
-      marginTop: "10px"
+      marginTop: "5%"
     }
   };
 
@@ -81,6 +79,7 @@ const Login = props => {
 
   return (
     <Card style={styles.card}>
+      <div style={{height:"12%", backgroundColor:"#3f51b5"}}/>
       <CardContent style={styles.cardContent}>
         <Typography variant="h2" style={styles.title}>
           Patent Alert
@@ -109,7 +108,7 @@ const Login = props => {
               />
             </div>
           </div>
-          <Button style={styles.button} type="submit">
+          <Button style={styles.button} type="submit" variant="contained" disableElevation>
             Login
           </Button>
         </form>
