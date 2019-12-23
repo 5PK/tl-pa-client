@@ -1,4 +1,19 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Techlink Patent Alert Client
+
+This is a React SPA written for Techlink. The application is a CRM with email alerting functionality. This application interfaces with an Express Node API. 
+
+## Current Issues/Progress
+
+https://trello.com/b/7PvTnSAP/patent-alert
+
+## Requirements
+
+1. node
+
+## Installation
+
+Simply run `npm install` to install the package dependencies
+
 
 ## Available Scripts
 
