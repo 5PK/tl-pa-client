@@ -43,7 +43,6 @@ async function confirmCode(code){
 }
 
 async function getClient(jwt, cid) {
-  console.log(`${API_ROOT}/client/` + cid);
 
   return fetch(`${API_ROOT}/client/` + cid, {
     method: "GET",
@@ -56,7 +55,6 @@ async function getClient(jwt, cid) {
 }
 
 async function deleteClient(jwt, cid){
-  console.log(`${API_ROOT}/client/` + cid);
 
   return fetch(`${API_ROOT}/client/` + cid, {
     method: "DELETE",
@@ -124,8 +122,6 @@ async function getAlerts(jwt, cid) {
 
 async function updateAlert(jwt, alert) {
 
-  console.log(alert)
-
   return fetch(`${API_ROOT}/alert/${alert.alertid}`, {
     method: "PUT",
     headers: {
@@ -143,7 +139,7 @@ async function updateAlert(jwt, alert) {
 }
 
 async function deleteAlert(jwt, aid){
-  console.log(`${API_ROOT}/alert/` + aid);
+
 
   return fetch(`${API_ROOT}/alert/` + aid, {
     method: "DELETE",
@@ -185,8 +181,6 @@ async function getContacts(jwt, cid) {
 
 async function updateContact(jwt, contact) {
 
-  console.log(contact)
-
   return fetch(`${API_ROOT}/contact/` + contact.contactid, {
     method: "PUT",
     headers: {
@@ -203,8 +197,6 @@ async function updateContact(jwt, contact) {
 }
 
 async function deleteContact(jwt, cid){
-  console.log(`${API_ROOT}/contact/` + cid);
-
   return fetch(`${API_ROOT}/contact/` + cid, {
     method: "DELETE",
     headers: {
@@ -216,7 +208,6 @@ async function deleteContact(jwt, cid){
 }
 
 async function addContact(jwt, contact, clientId) {
-  console.log("hello?")
   return fetch(`${API_ROOT}/contact/`, {
     method: "POST",
     headers: {
@@ -225,8 +216,8 @@ async function addContact(jwt, contact, clientId) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      firstName: contact.firstName,
-      lastName: contact.lastName,
+      firstName: contact.fname,
+      lastName: contact.lname,
       email: contact.email,
       bx3ClientId: clientId
     })

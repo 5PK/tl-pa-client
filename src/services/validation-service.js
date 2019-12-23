@@ -3,7 +3,9 @@ function validateEmail (email) {
 }
 
 function validateEmpty (input) {
-  if(input == ''){
+  
+  if(input == ""){
+    console.log(input.length)
     return false
   }else{
     return true

@@ -7,9 +7,6 @@ import { validateEmail, validateEmpty } from "../services/validation-service";
 
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
-import Fade from "@material-ui/core/Fade";
 import Fab from "@material-ui/core/Fab";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -82,19 +79,10 @@ const headCells = [
 ];
 
 const useStyles = makeStyles(theme => ({
-  modal: {
+  dialog: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    outline: 0,
-    height: "50%",
-    width: "50%",
-    margin: "auto"
   },
   button: {
     textAlign: "center",
@@ -176,7 +164,7 @@ const Client = props => {
     list: [],
     loading: true
   });
-  const [modal, setModal] = React.useState({
+  const [dialog, setDialog] = React.useState({
     open: false
   });
   const [snacks, setSnack] = React.useState({
@@ -187,18 +175,19 @@ const Client = props => {
 
   const [validForm, setValidForm] = React.useState({
     email: false,
-    name: false,
-    valid: false
+    name: false
   });
 
-  // Open Modal Function
-  const openModal = () => {
-    setModal({ ...modal, open: true });
+  const [buttonDisable, setButtonDisable] = React.useState(true);
+
+  // Open Dialog Function
+  const openDialog = () => {
+    setDialog({ ...dialog, open: true });
   };
 
-  // Open Modal Function
-  const closeModal = () => {
-    setModal({ ...modal, open: false });
+  // Open Dialog Function
+  const closeDialog = () => {
+    setDialog({ ...dialog, open: false });
   };
 
   // Close Snack Function
@@ -211,9 +200,7 @@ const Client = props => {
 
   // Handle Text input changes
   const handleInputChange = property => event => {
-    console.log(property);
-
-    if (property == "aso") {
+    if (property === "aso") {
       if (validateEmail(event.target.value)) {
         setValidForm({ ...validForm, email: true });
         setClient({ ...client, [property]: event.target.value });
@@ -223,9 +210,10 @@ const Client = props => {
       }
     }
 
-    if (property == "name") {
-      if (validateEmpty(event.target.value)) {
+    if (property === "name") {
+      if (validateEmpty(event.target.value) === true) {
         setValidForm({ ...validForm, name: true });
+        console.log("not empty", validateEmpty(event.target.value), validForm);
         setClient({ ...client, [property]: event.target.value });
       } else {
         setValidForm({ ...validForm, name: false });
@@ -233,8 +221,10 @@ const Client = props => {
       }
     }
 
-    if (validForm.email == true && validForm.name == true) {
-      setValidForm({ ...validForm, valid: true });
+    if (validForm.email === true && validForm.name === true) {
+      setButtonDisable(false);
+    } else {
+      setButtonDisable(true);
     }
   };
 
@@ -249,7 +239,7 @@ const Client = props => {
 
     const postResponse = await addClient(auth.getJwt(), client);
     const response = await postResponse.json();
-    closeModal();
+    closeDialog();
     sendSnack(response);
     setClient({ ...client, loading: true });
     fetchClientList();
@@ -315,7 +305,7 @@ const Client = props => {
                       color="secondary"
                       aria-label="add"
                       className={classes.margin}
-                      onClick={openModal}
+                      onClick={openDialog}
                     >
                       <AddIcon />
                     </Fab>
@@ -381,8 +371,8 @@ const Client = props => {
             </RSC>
           </div>
           <Dialog
-            open={modal.open}
-            onClose={closeModal}
+            open={dialog.open}
+            onClose={closeDialog}
             aria-labelledby="form-dialog-title"
           >
             <DialogTitle id="form-dialog-title">Add Client</DialogTitle>
@@ -412,13 +402,13 @@ const Client = props => {
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={closeModal} color="secondary">
+              <Button onClick={closeDialog} color="secondary">
                 Cancel
               </Button>
               <Button
                 onClick={handleAddClient}
                 color="primary"
-                disabled={!validForm.valid}
+                disabled={buttonDisable}
               >
                 Add Client
               </Button>
