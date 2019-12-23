@@ -2,11 +2,11 @@
 import React, { useEffect } from "react";
 import { getClients, addClient } from "../services/api-service";
 
+// Helper
+import { validateEmail, validateEmpty } from "../services/validation-service";
+
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
-import Fade from "@material-ui/core/Fade";
 import Fab from "@material-ui/core/Fab";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -27,6 +27,12 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import Tooltip from "@material-ui/core/Tooltip";
 
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions";
+
 // React Scrollbars Custom
 import RSC from "react-scrollbars-custom";
 
@@ -35,9 +41,6 @@ import PropTypes from "prop-types";
 
 // React Awesome Spinner
 import { Ring } from "react-awesome-spinners";
-
-// React Router
-import { Link as RouterLink, BrowserRouter as Router } from "react-router-dom";
 
 // Auth
 import auth from "../services/auth-service";
@@ -76,17 +79,10 @@ const headCells = [
 ];
 
 const useStyles = makeStyles(theme => ({
-  modal: {
+  dialog: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "1px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    outline: 0
   },
   button: {
     textAlign: "center",
@@ -168,7 +164,7 @@ const Client = props => {
     list: [],
     loading: true
   });
-  const [modal, setModal] = React.useState({
+  const [dialog, setDialog] = React.useState({
     open: false
   });
   const [snacks, setSnack] = React.useState({
@@ -177,14 +173,21 @@ const Client = props => {
     name: ""
   });
 
-  // Open Modal Function
-  const openModal = () => {
-    setModal({ ...modal, open: true });
+  const [validForm, setValidForm] = React.useState({
+    email: false,
+    name: false
+  });
+
+  const [buttonDisable, setButtonDisable] = React.useState(true);
+
+  // Open Dialog Function
+  const openDialog = () => {
+    setDialog({ ...dialog, open: true });
   };
 
-  // Open Modal Function
-  const closeModal = () => {
-    setModal({ ...modal, open: false });
+  // Open Dialog Function
+  const closeDialog = () => {
+    setDialog({ ...dialog, open: false });
   };
 
   // Close Snack Function
@@ -197,7 +200,32 @@ const Client = props => {
 
   // Handle Text input changes
   const handleInputChange = property => event => {
-    setClient({ ...client, [property]: event.target.value });
+    if (property === "aso") {
+      if (validateEmail(event.target.value)) {
+        setValidForm({ ...validForm, email: true });
+        setClient({ ...client, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, email: false });
+        setClient({ ...client, [property]: event.target.value });
+      }
+    }
+
+    if (property === "name") {
+      if (validateEmpty(event.target.value) === true) {
+        setValidForm({ ...validForm, name: true });
+        console.log("not empty", validateEmpty(event.target.value), validForm);
+        setClient({ ...client, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, name: false });
+        setClient({ ...client, [property]: event.target.value });
+      }
+    }
+
+    if (validForm.email === true && validForm.name === true) {
+      setButtonDisable(false);
+    } else {
+      setButtonDisable(true);
+    }
   };
 
   // Send the Snak to the User
@@ -211,7 +239,7 @@ const Client = props => {
 
     const postResponse = await addClient(auth.getJwt(), client);
     const response = await postResponse.json();
-    closeModal();
+    closeDialog();
     sendSnack(response);
     setClient({ ...client, loading: true });
     fetchClientList();
@@ -277,7 +305,7 @@ const Client = props => {
                       color="secondary"
                       aria-label="add"
                       className={classes.margin}
-                      onClick={openModal}
+                      onClick={openDialog}
                     >
                       <AddIcon />
                     </Fab>
@@ -289,15 +317,15 @@ const Client = props => {
                   }}
                 >
                   <Tooltip title="Refresh List" placement="right">
-                  <Fab
-                    size="small"
-                    color="primary"
-                    aria-label="add"
-                    className={classes.margin}
-                    onClick={refreshClientList}
-                  >
-                    <RefreshIcon />
-                  </Fab>
+                    <Fab
+                      size="small"
+                      color="primary"
+                      aria-label="add"
+                      className={classes.margin}
+                      onClick={refreshClientList}
+                    >
+                      <RefreshIcon />
+                    </Fab>
                   </Tooltip>
                 </div>
               </Grid>
@@ -342,46 +370,50 @@ const Client = props => {
               )}
             </RSC>
           </div>
-
-          <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            className={classes.modal}
-            open={modal.open}
-            onClose={closeModal}
-            closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: 500
-            }}
+          <Dialog
+            open={dialog.open}
+            onClose={closeDialog}
+            aria-labelledby="form-dialog-title"
           >
-            <Fade in={modal.open}>
-              <div className={classes.paper}>
-                <h2 id="transition-modal-title">Add Client</h2>
-                <form onSubmit={handleAddClient}>
-                  <TextField
-                    label="Company Name"
-                    className={classes.textField}
-                    margin="normal"
-                    value={client.name}
-                    onChange={handleInputChange("name")}
-                  />
-                  <br />
-                  <TextField
-                    label="ASO Email"
-                    className={classes.textField}
-                    margin="normal"
-                    value={client.aso}
-                    onChange={handleInputChange("aso")}
-                  />
-                  <br />
-                  <Button className={classes.button} type="submit">
-                    Submit
-                  </Button>
-                </form>
-              </div>
-            </Fade>
-          </Modal>
+            <DialogTitle id="form-dialog-title">Add Client</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                To add a client, enter in the company name as well as the ASO
+                (Authorized Signing Officer) email. The ASO must confirm your
+                relationship before you can begin creating automated alerts.
+              </DialogContentText>
+
+              <TextField
+                label="Company Name"
+                className={classes.textField}
+                margin="normal"
+                value={client.name}
+                onChange={handleInputChange("name")}
+                error={!validForm.name}
+              />
+              <br />
+              <TextField
+                label="ASO Email"
+                className={classes.textField}
+                margin="normal"
+                value={client.aso}
+                onChange={handleInputChange("aso")}
+                error={!validForm.email}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={closeDialog} color="secondary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddClient}
+                color="primary"
+                disabled={buttonDisable}
+              >
+                Add Client
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Paper>
 
         <Snackbar

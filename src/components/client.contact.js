@@ -2,27 +2,29 @@
 import React, { useState, useEffect } from "react";
 import { getContacts, addContact } from "../services/api-service";
 
+// Helper
+import { validateEmail, validateEmpty } from "../services/validation-service";
+
 // Material UI Components
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import Divider from "@material-ui/core/Divider";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import Grid from "@material-ui/core/Grid";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import AddIcon from "@material-ui/icons/Add";
 import Fab from "@material-ui/core/Fab";
-import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
-import Fade from "@material-ui/core/Fade";
 import TextField from "@material-ui/core/TextField";
-import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import Snackbar from "@material-ui/core/Snackbar";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
+
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogActions from "@material-ui/core/DialogActions";
 
 // Custom Component Import
 import ContactList from "./client.contactList";
@@ -34,50 +36,19 @@ import { Ring } from "react-awesome-spinners";
 import auth from "../services/auth-service";
 
 const useStyles = makeStyles(theme => ({
-  card: {
-    minWidth: 275
-  },
-  bullet: {
-    display: "inline-block",
-    margin: "0 2px",
-    transform: "scale(0.8)"
-  },
   title: {
     fontSize: 14
-  },
-  pos: {
-    marginBottom: 12
   },
   root: {
     padding: theme.spacing(3, 2)
   },
-  visuallyHidden: {
-    border: 0,
-    clip: "rect(0 0 0 0)",
-    height: 1,
-    margin: -1,
-    padding: 0,
-    position: "absolute",
-    top: 20,
-    width: 1
-  },
   table: {
     minWidth: 750
-  },
-  clientList: {
-    padding: 0
   },
   tableHeadCell: {
     width: "20%"
   },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "1px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    outline: 0
-  },
-  modal: {
+  dialog: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center"
@@ -94,19 +65,26 @@ const ClientContactList = () => {
     type: 0,
     name: ""
   });
-  const [modal, setModal] = React.useState({
+  const [dialog, setDialog] = React.useState({
     open: false
   });
   const [contact, setContact] = React.useState({
     list: [],
     loading: true,
-    firstName: "",
-    lastName: "",
+    fname: "",
+    lname: "",
     email: ""
   });
 
+  const [validForm, setValidForm] = React.useState({
+    fname: false,
+    lname: false,
+    email: false
+  });
+
+  const [buttonDisable, setButtonDisable] = React.useState(true);
+
   useEffect(() => {
-   
     fetchClientContacts();
   }, []);
 
@@ -122,13 +100,10 @@ const ClientContactList = () => {
   };
 
   const fetchClientContacts = async () => {
-    console.log("clientId: " + clientId);
 
     try {
       const res = await getContacts(auth.getJwt(), clientId);
-      console.log(res);
       const resJson = await res.json();
-      console.log(resJson);
       setContact({ ...contact, list: resJson.data, loading: false });
     } catch (error) {
       sendSnack({ body: error.name + " getting Contacts" });
@@ -139,14 +114,9 @@ const ClientContactList = () => {
     event.preventDefault();
     try {
 
-      console.log(contact.firstName);
-      console.log(clientId);
-
       const res = await addContact(auth.getJwt(), contact, clientId);
-      console.log(res);
       const resJson = await res.json();
-      console.log(resJson);
-      closeModal();
+      closeDialog();
       if (resJson.statusCode === 200) {
         setContact({ ...contact, loading: true });
         fetchClientContacts();
@@ -159,16 +129,54 @@ const ClientContactList = () => {
     }
   };
 
-  const openModal = () => {
-    setModal({ ...modal, open: true });
+  const openDialog = () => {
+    setDialog({ ...dialog, open: true });
   };
 
-  const closeModal = () => {
-    setModal({ ...modal, open: false });
+  const closeDialog = () => {
+    setDialog({ ...dialog, open: false });
   };
 
-  const handleChange = property => event => {
-    setContact({ ...contact, [property]: event.target.value });
+  const handleInputChange = property => event => {
+    if (property === "email") {
+      if (validateEmail(event.target.value)) {
+        setValidForm({ ...validForm, email: true });
+        setContact({ ...contact, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, email: false });
+        setContact({ ...contact, [property]: event.target.value });
+      }
+    }
+
+    if (property === "fname") {
+      if (validateEmpty(event.target.value)) {
+        setValidForm({ ...validForm, fname: true });
+        setContact({ ...contact, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, fname: false });
+        setContact({ ...contact, [property]: event.target.value });
+      }
+    }
+
+    if (property === "lname") {
+      if (validateEmpty(event.target.value)) {
+        setValidForm({ ...validForm, lname: true });
+        setContact({ ...contact, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, lname: false });
+        setContact({ ...contact, [property]: event.target.value });
+      }
+    }
+
+    if (
+      validForm.email === true &&
+      validForm.fname === true &&
+      validForm.lname === true
+    ) {
+      setButtonDisable(false);
+    } else {
+      setButtonDisable(true);
+    }
   };
 
   return (
@@ -190,7 +198,7 @@ const ClientContactList = () => {
             color="secondary"
             aria-label="add"
             className={classes.margin}
-            onClick={openModal}
+            onClick={openDialog}
           >
             <AddIcon />
           </Fab>
@@ -198,7 +206,7 @@ const ClientContactList = () => {
       </Grid>
       <div
         style={{
-          marginTop:"25px",
+          marginTop: "25px",
           maxHeight: "40vh",
           textAlign: "center"
         }}
@@ -206,54 +214,58 @@ const ClientContactList = () => {
         {contact.loading ? (
           <Ring style={{ margin: "auto" }} />
         ) : (
-          <ContactList props={{ contacts: contact.list}} />
+          <ContactList props={{ contacts: contact.list }} />
         )}
       </div>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        className={classes.modal}
-        open={modal.open}
-        onClose={closeModal}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
+      <Dialog
+        open={dialog.open}
+        onClose={closeDialog}
+        aria-labelledby="form-dialog-title"
       >
-        <Fade in={modal.open}>
-          <div className={classes.paper}>
-            <h2 id="transition-modal-title">Add a New Contact!</h2>
-            <form onSubmit={handleAddContact}>
-              <TextField
-                label="First Name"
-                className={classes.textField}
-                margin="normal"
-                onChange={handleChange("firstName")}
-              />
-              <br />
-              <TextField
-                label="Last Name"
-                className={classes.textField}
-                margin="normal"
-                onChange={handleChange("lastName")}
-              />
-              <br />
-              <TextField
-                label="Email"
-                className={classes.textField}
-                margin="normal"
-                onChange={handleChange("email")}
-              />
-              <br />
-              <Button className={classes.button} type="submit">
-                Submit
-              </Button>
-            </form>
-          </div>
-        </Fade>
-      </Modal>
+        <DialogTitle id="form-dialog-title">Add Contact</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Assign Contacts to your alerts. When an alert is triggered an
+            automated email will be sent to contacts assigned to the alert.
+          </DialogContentText>
 
+          <TextField
+            label="First Name"
+            className={classes.textField}
+            margin="normal"
+            onChange={handleInputChange("fname")}
+            error={!validForm.fname}
+          />
+          <br />
+          <TextField
+            label="Last Name"
+            className={classes.textField}
+            margin="normal"
+            onChange={handleInputChange("lname")}
+            error={!validForm.lname}
+          />
+          <br />
+          <TextField
+            label="Email"
+            className={classes.textField}
+            margin="normal"
+            onChange={handleInputChange("email")}
+            error={!validForm.email}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddContact}
+            color="primary"
+            disabled={buttonDisable}
+          >
+            Add Contact
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Snackbar
         anchorOrigin={{
           vertical: "bottom",
@@ -280,6 +292,6 @@ const ClientContactList = () => {
       />
     </div>
   );
-}
+};
 
 export default ClientContactList;

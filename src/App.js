@@ -15,7 +15,7 @@ import Landing from "./containers/landing";
 import Client from "./containers/client";
 
 import ClientDetail from "./containers/client.detail";
-import { ProtectedRoute } from "./protected.route";
+import { ProtectedRoute } from "./components/protected.route";
 
 const App = () => {
   return (

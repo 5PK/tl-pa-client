@@ -70,12 +70,12 @@ const useStyles = makeStyles(theme => ({
     outline: 0
   },
   contactCard: {
-    height: "100%",
+    height: "80vh",
     width: "100%",
     borderRadius: "25px"
   },
   alertCard: {
-    height: "100%",
+    height: "80vh",
     width: "100%",
     borderRadius: "25px"
   },

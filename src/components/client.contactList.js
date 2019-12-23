@@ -7,14 +7,14 @@ import {
 
 import { makeStyles } from "@material-ui/core/styles";
 
+// Helper
+import { validateEmail, validateEmpty } from "../services/validation-service";
+
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
-import Fade from "@material-ui/core/Fade";
 
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -44,32 +44,19 @@ const useStyles = makeStyles(theme => ({
   heading: {
     fontSize: theme.typography.pxToRem(15),
     fontWeight: theme.typography.fontWeightRegular
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "1px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    outline: 0
-  },
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center"
   }
 }));
 
 const ContactList = props => {
- 
   var contacts = props.props.contacts;
 
   const cid = window.location.pathname.replace("/Client/", "");
   const classes = useStyles();
 
-  const [modal, setModal] = React.useState({
+  const [dialog, setDialog] = React.useState({
     open: false,
-    firstName: "",
-    lastName: "",
+    fname: "",
+    lname: "",
     email: "",
     id: ""
   });
@@ -84,25 +71,37 @@ const ContactList = props => {
     loading: false
   });
 
-  const [dialog, setDialog] = React.useState({
+  const [delDialog, setDelDialog] = React.useState({
     open: false,
     contactDelId: null
   });
 
-  const openModal = contact => {
-    console.log(contact);
-    setModal({
-      ...modal,
+  const [validForm, setValidForm] = React.useState({
+    fname: false,
+    lname: false,
+    email: false
+  });
+
+  const [buttonDisable, setButtonDisable] = React.useState(true);
+
+  const openDialog = contact => {
+    setValidForm({
+      fname: true,
+      lname: true,
+      email: true,
+    });
+    setDialog({
+      ...dialog,
       open: true,
-      firstName: contact.firstName,
-      lastName: contact.lastName,
+      fname: contact.firstName,
+      lname: contact.lastName,
       email: contact.email,
       contactid: contact.id
     });
   };
 
-  const closeModal = () => {
-    setModal({ ...modal, open: false });
+  const closeDialog = () => {
+    setDialog({ ...dialog, open: false });
   };
 
   const closeSnack = (event, reason) => {
@@ -116,51 +115,93 @@ const ContactList = props => {
     setSnack({ ...snacks, open: true, name: response.body });
   };
 
-  const openDialog = () => {
-    var contactid = modal.contactid;
-    closeModal();
-    setDialog({ ...Dialog, open: true, contactDelId: contactid });
+  const openDelDialog = () => {
+    var contactid = dialog.contactid;
+    closeDialog();
+    setDelDialog({ ...dialog, open: true, contactDelId: contactid });
   };
 
-  const closeDialog = () => {
-    setDialog({ ...Dialog, open: false });
+  const closeDelDialog = () => {
+    setDelDialog({ ...dialog, open: false });
   };
 
   const handleInputChange = property => event => {
-    setModal({ ...modal, [property]: event.target.value });
+    
+    if (property === "email") {
+      if (validateEmail(event.target.value)) {
+        setValidForm({ ...validForm, email: true });
+        setContact({ ...contact, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, email: false });
+        setContact({ ...contact, [property]: event.target.value });
+      }
+    }
+
+    if (property === "fname") {
+      if (validateEmpty(event.target.value)) {
+        setValidForm({ ...validForm, fname: true });
+        setContact({ ...contact, [property]: event.target.value });
+      } else {
+        setValidForm({ ...validForm, fname: false });
+        setContact({ ...contact, [property]: event.target.value });
+        console.log('setting false',validForm)
+      }
+    }
+
+    if (property === "lname") {
+      if (validateEmpty(event.target.value)) {
+        setValidForm({ ...validForm, lname: true });
+        setContact({ ...contact, [property]: event.target.value });
+
+
+      } else {
+        setValidForm({ ...validForm, lname: false });
+        setContact({ ...contact, [property]: event.target.value });
+      }
+    }
+
+    console.log(validForm)
+
+    if (
+      validForm.email === true &&
+      validForm.fname === true &&
+      validForm.lname === true
+    ) {
+      console.log('form valid')
+      setButtonDisable(false);
+    } else {
+      setButtonDisable(true);
+    }
   };
 
   const handleEditContact = async event => {
-    console.log("hello");
-    console.log(modal);
-
+    console.log(dialog);
 
     event.preventDefault();
     try {
-      const res = await updateContact(auth.getJwt(), modal);
+      const res = await updateContact(auth.getJwt(), dialog);
       console.log(res);
       const resJson = await res.json();
       console.log(resJson);
 
       if (resJson.statusCode === 200) {
         setContact({ ...contact, loading: true });
-        closeModal();
+        closeDialog();
         fetchContacts();
-        sendSnack({ body: "Client Updated!" });
+        sendSnack({ body: "Contact Updated!" });
       } else {
-        closeModal();
-        sendSnack({ body: `Error Updating Client!: ${resJson.statusCode}` });
+        closeDialog();
+        sendSnack({ body: `Error Updating Contact!: ${resJson.statusCode}` });
       }
     } catch (error) {
-      closeModal();
-      sendSnack({ body: `Error Updating Client!: ${error.name}` });
+      closeDialog();
+      sendSnack({ body: `Error Updating Contact!: ${error.name}` });
     }
   };
 
   const fetchContacts = async () => {
     try {
       const res = await getContacts(auth.getJwt(), cid);
-      console.log(res);
       const resJson = await res.json();
       console.log(resJson);
       setContact({ ...contact, list: resJson.data, loading: false });
@@ -173,28 +214,28 @@ const ContactList = props => {
     event.preventDefault();
     try {
       var promise = new Promise(async function(resolve, reject) {
-        console.log(dialog.contactDelId);
-        var res = await deleteContact(auth.getJwt(), dialog.contactDelId);
+        console.log(delDialog.contactDelId);
+        var res = await deleteContact(auth.getJwt(), delDialog.contactDelId);
         console.log(res);
         var resJson = await res.json();
         console.log(resJson);
         if (resJson.statusCode === 200) {
           resolve(resJson);
         } else {
-          closeDialog();
+          closeDelDialog();
           sendSnack({ body: `Error Deleting Contact!: ${resJson.statusCode}` });
           reject(resJson);
         }
       });
 
       promise.then(function(value) {
-        closeDialog();
+        closeDelDialog();
         sendSnack({ body: value.msg });
         setContact({ ...contact, loading: true });
         fetchContacts();
       });
     } catch (error) {
-      closeDialog();
+      closeDelDialog();
       sendSnack({ body: `Error Deleting Alert!: ${error.name}` });
     }
   };
@@ -212,11 +253,11 @@ const ContactList = props => {
         ) : (
           <List>
             {contact.list.map(cont => (
-              <ListItem style={{ }} key={cont.id}>
+              <ListItem style={{}} key={cont.id}>
                 <Tooltip title="Edit Contact" placement="right">
                   <Button
                     id={cont.id}
-                    onClick={e => openModal(cont)}
+                    onClick={e => openDialog(cont)}
                     style={{
                       width: "100%",
                       textAlign: "left",
@@ -231,70 +272,70 @@ const ContactList = props => {
           </List>
         )}
       </RSC>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        className={classes.modal}
-        open={modal.open}
-        onClose={closeModal}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500
-        }}
-      >
-        <Fade in={modal.open}>
-          <div className={classes.paper}>
-            <h2 id="transition-modal-title">Edit Contact</h2>
-            <form onSubmit={handleEditContact}>
-              <TextField
-                required
-                label="First Name"
-                className={classes.textField}
-                margin="normal"
-                defaultValue={modal.firstName}
-                value={modal.firstName}
-                onChange={handleInputChange("firstName")}
-              />
-              <br />
-              <TextField
-                required
-                label="Last Name"
-                className={classes.textField}
-                margin="normal"
-                value={modal.lastName}
-                onChange={handleInputChange("lastName")}
-                defaultValue={modal.lastName}
-              />
-              <br />
-              <TextField
-                required
-                label="Email"
-                className={classes.textField}
-                margin="normal"
-                value={modal.email}
-                onChange={handleInputChange("email")}
-                defaultValue={modal.email}
-              />
-              <br />
-              <Button className={classes.button} type="submit">
-                Submit
-              </Button>
-              <Button
-                color="secondary"
-                className={classes.button}
-                onClick={openDialog}
-              >
-                DELETE CLIENT
-              </Button>
-            </form>
-          </div>
-        </Fade>
-      </Modal>
 
       <Dialog
         open={dialog.open}
         onClose={closeDialog}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Edit Contact</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Assign Contacts to your alerts. When an alert is triggered an
+            automated email will be sent to contacts assigned to the alert.
+          </DialogContentText>
+
+          <TextField
+            label="First Name"
+            className={classes.textField}
+            margin="normal"
+            onChange={handleInputChange("fname")}
+            error={!validForm.fname}
+            defaultValue={dialog.fname}
+          />
+          <br />
+          <TextField
+            label="Last Name"
+            className={classes.textField}
+            margin="normal"
+            onChange={handleInputChange("lname")}
+            error={!validForm.lname}
+            defaultValue={dialog.lname}
+          />
+          <br />
+          <TextField
+            label="Email"
+            className={classes.textField}
+            margin="normal"
+            onChange={handleInputChange("email")}
+            error={!validForm.email}
+            defaultValue={dialog.email}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            onClick={openDelDialog}
+          >
+            DELETE CLIENT
+          </Button>
+
+          <Button onClick={closeDialog} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditContact}
+            color="primary"
+            disabled={buttonDisable}
+          >
+            Edit Contact
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={delDialog.open}
+        onClose={closeDelDialog}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -308,7 +349,7 @@ const ContactList = props => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeDialog} color="primary">
+          <Button onClick={closeDelDialog} color="primary">
             Disagree
           </Button>
           <Button onClick={handleDeleteContact} color="primary" autoFocus>
@@ -343,7 +384,6 @@ const ContactList = props => {
       />
     </Container>
   );
-}
+};
 
-
-export default ContactList
+export default ContactList;

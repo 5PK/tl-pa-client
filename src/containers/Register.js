@@ -162,6 +162,7 @@ export default class Register extends Component {
     return (
 
     <Card style={styles.card}>
+      <div style={{height:"12%", backgroundColor:"#3f51b5"}}/>
       <CardContent style={styles.cardContent}>
       <Typography variant="h2" style={styles.title}>
             Patent Alert
@@ -205,6 +206,7 @@ export default class Register extends Component {
   renderForm() {
     return (
       <Card style={styles.card}>
+        <div style={{height:"12%", backgroundColor:"#3f51b5"}}/>
         <CardContent style={styles.cardContent}>
           <Typography variant="h2" style={styles.title}>
             Patent Alert
