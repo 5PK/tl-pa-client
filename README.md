@@ -1,4 +1,4 @@
-# Techlink Patent Alert Client
+# Patent Alert Client
 
 This is a React SPA written for Techlink. The application is a CRM with email alerting functionality. This application interfaces with an Express Node API. 
 
